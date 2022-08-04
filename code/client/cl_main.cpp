@@ -1316,13 +1316,13 @@ void CL_Init( void ) {
 
 	CL_InitRef();
 
-	CL_StartHunkUsers();
-
 	SCR_Init ();
 
 	Cbuf_Execute ();
 
 	Cvar_Set( "cl_running", "1" );
+
+	CL_StartHunkUsers();
 
 	Com_Printf( "----- Client Initialization Complete -----\n" );
 }
