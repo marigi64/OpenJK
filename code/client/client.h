@@ -374,6 +374,7 @@ void	SCR_DrawSmallChar( int x, int y, int ch );
 
 #ifdef JK2_MODE
 void	SCR_PrecacheScreenshot();
+void	SCR_PrecacheScreenshot2();
 #endif
 
 //

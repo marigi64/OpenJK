@@ -554,6 +554,32 @@ void SCR_PrecacheScreenshot()
 
 }
 
+void SCR_PrecacheScreenshot2()
+{
+	// No screenshots unless connected to single player local server...
+	//
+//	char *psInfo = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SERVERINFO ];
+//	int iMaxClients = atoi(Info_ValueForKey( psInfo, "sv_maxclients" ));
+
+	// (no need to check single-player status in voyager, this code base is all singleplayer)
+	if (cls.state != CA_ACTIVE)
+	{
+		return;
+	}
+
+	if (!Key_GetCatcher())
+	{
+		// in-game...
+		//
+//		SCR_UnprecacheScreenshot();
+//		pbScreenData = (byte *)Z_Malloc(SG_SCR_WIDTH * SG_SCR_HEIGHT * 4);
+		S_ClearSoundBuffer();	// clear DMA etc because the following glReadPixels() call can take ages
+		re.GetScreenShot2((byte*)&bScreenData, SG_SCR_WIDTH, SG_SCR_HEIGHT);
+		screenDataValid = qtrue;
+	}
+
+}
+
 byte *SCR_GetScreenshot(qboolean *qValid)
 {
 	if (!screenDataValid) {

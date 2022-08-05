@@ -208,6 +208,79 @@ void RE_GetScreenShot(byte *buffer, int w, int h)
 	R_Free(source);
 }
 
+void RE_GetScreenShot2(byte* buffer, int w, int h)
+{
+	byte* source;
+	byte* src, * dst;
+	int			x, y;
+	int			r, g, b;
+	float		xScale, yScale;
+	int			xx, yy;
+
+	qglFinish();	// try and fix broken Radeon cards (7500 & 8500) that don't read screen pixels properly
+
+	source = (byte*)R_Malloc(glConfig.vidWidth * glConfig.vidHeight * 3, TAG_TEMP_WORKSPACE, qfalse);
+	if (!source)
+	{
+		return;
+	}
+	qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source);
+
+	assert(w == h);
+	int count = 0;
+
+
+	// resample from source
+	xScale = glConfig.vidWidth / (4.0 * w);
+	yScale = glConfig.vidHeight / (3.0 * w);
+
+	int iCopyBytes = glConfig.vidWidth * 3;
+
+	byte* pbSrc = &source[glConfig.vidWidth * glConfig.vidHeight * 3];
+	byte* pbDst = &source[glConfig.vidWidth * glConfig.vidHeight * 3];
+
+	// invert
+	byte* pbSwapLineBuffer = (byte*)R_Malloc(iCopyBytes, TAG_TEMP_WORKSPACE, qfalse);
+	pbSrc = &source[0];
+	pbDst = &source[(glConfig.vidHeight - 1) * glConfig.vidWidth * 3];
+	for (int y = 0; y < glConfig.vidHeight / 2; y++)
+	{
+		memcpy(pbSwapLineBuffer, pbDst, iCopyBytes);
+		memcpy(pbDst, pbSrc, iCopyBytes);
+		memcpy(pbSrc, pbSwapLineBuffer, iCopyBytes);
+		pbDst -= glConfig.vidWidth * 3;
+		pbSrc += glConfig.vidWidth * 3;
+	}
+	R_Free(pbSwapLineBuffer);
+
+	for (y = 0; y < w; y++)
+	{
+		for (x = 0; x < w; x++)
+		{
+			r = g = b = 0;
+			for (yy = 0; yy < 3; yy++)
+			{
+				for (xx = 0; xx < 4; xx++)
+				{
+					src = source + 3 * (glConfig.vidWidth * (int)((y * 3) * yScale) + (int)((x * 4 + xx) * xScale));
+					r += src[0];
+					g += src[1];
+					b += src[2];
+				}
+			}
+			dst = buffer + 4 * (y * w + x);
+			dst[0] = r / 12;
+			dst[1] = g / 12;
+			dst[2] = b / 12;
+			count++;
+		}
+
+	}
+
+	assert(count == w * h);
+	R_Free(source);
+}
+
 // this is just a chunk of code from RE_TempRawImage_ReadFromFile() below, subroutinised so I can call it
 //	from the screen dissolve code as well...
 //

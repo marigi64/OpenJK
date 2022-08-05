@@ -228,7 +228,7 @@ static void SV_MapTransition_f(void)
 	const char	*spawntarget;
 
 #ifdef JK2_MODE
-	SCR_PrecacheScreenshot();
+	SCR_PrecacheScreenshot2();
 #endif
 	SV_Player_EndOfLevelSave();
 
@@ -313,7 +313,7 @@ void SV_LoadTransition_f(void)
 	qbLoadTransition = qtrue;
 
 #ifdef JK2_MODE
-	SCR_PrecacheScreenshot();
+	SCR_PrecacheScreenshot2();
 #endif
 	SV_Player_EndOfLevelSave();
 

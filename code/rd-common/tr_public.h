@@ -208,6 +208,7 @@ typedef struct {
 
 	// for use with save-games mainly...
 	void	(*GetScreenShot)(byte *data, int w, int h);
+	void	(*GetScreenShot2)(byte* data, int w, int h);
 
 #ifdef JK2_MODE
 	size_t	(*SaveJPGToBuffer)(byte *buffer, size_t bufSize, int quality, int image_width, int image_height, byte *image_buffer, int padding, bool flip_vertical );

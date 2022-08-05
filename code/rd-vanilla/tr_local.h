@@ -1306,6 +1306,7 @@ void	GL_Cull( int cullType );
 void	RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int iClient, qboolean bDirty );
 void	RE_UploadCinematic (int cols, int rows, const byte *data, int client, qboolean dirty);
 void	RE_GetScreenShot(byte *data, int w, int h);
+void	RE_GetScreenShot2(byte* data, int w, int h);
 byte*	RE_TempRawImage_ReadFromFile(const char *psLocalFilename, int *piWidth, int *piHeight, byte *pbReSampleBuffer, qboolean qbVertFlip);
 void	RE_TempRawImage_CleanUp();
 

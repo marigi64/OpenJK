@@ -2039,6 +2039,7 @@ extern "C" Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *
 	REX(InitDissolve);
 
 	REX(GetScreenShot);
+	REX(GetScreenShot2);
 #ifdef JK2_MODE
 	REX(SaveJPGToBuffer);
 	re.LoadJPGFromBuffer = LoadJPGFromBuffer;
