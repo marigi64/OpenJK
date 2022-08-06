@@ -231,6 +231,9 @@ PFNGLISPROGRAMARBPROC qglIsProgramARB;
 PFNGLLOCKARRAYSEXTPROC qglLockArraysEXT;
 PFNGLUNLOCKARRAYSEXTPROC qglUnlockArraysEXT;
 
+PFNGLPOINTPARAMETERFEXTPROC qglPointParameterfEXT;
+PFNGLPOINTPARAMETERFVEXTPROC qglPointParameterfvEXT;
+
 bool g_bTextureRectangleHack = false;
 
 void RE_SetLightStyle(int style, int color);
@@ -521,6 +524,32 @@ static void GLimp_InitExtensions( void )
 	{
 		Com_Printf ("...GL_EXT_compiled_vertex_array not found\n" );
 	}
+
+
+	qglPointParameterfEXT = NULL;
+	qglPointParameterfvEXT = NULL;
+	if (strstr(glConfig.extensions_string, "GL_EXT_point_parameters"))
+	{
+		if (r_ext_compiled_vertex_array->integer || 1)
+		{
+			ri.Printf(PRINT_ALL, "...using GL_EXT_point_parameters\n");
+			qglPointParameterfEXT = (PFNGLPOINTPARAMETERFEXTPROC) ri.GL_GetProcAddress("glPointParameterfEXT");
+			qglPointParameterfvEXT = (PFNGLPOINTPARAMETERFVEXTPROC) ri.GL_GetProcAddress("glPointParameterfvEXT");
+			if (!qglPointParameterfEXT || !qglPointParameterfvEXT)
+			{
+				ri.Error(ERR_FATAL, "bad getprocaddress");
+			}
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_point_parameters\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_point_parameters not found\n");
+	}
+
 
 	bool bNVRegisterCombiners = false;
 	// Register Combiners.
