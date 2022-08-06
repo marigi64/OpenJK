@@ -942,52 +942,6 @@ void CMistyFog2::Render(CWorldEffectsSystem* system)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class CWind : public CWorldEffect
 {
 private:
@@ -1011,10 +965,6 @@ public:
 
 	void	UpdateParms(vec3_t point, vec3_t velocity, vec3_t size, int duration);
 };
-
-
-
-
 
 
 
@@ -1776,7 +1726,20 @@ void CSnowSystem::Render(void)
 	GL_State(GLS_ALPHA);
 	qglDisable(GL_TEXTURE_2D);
 
-	qglPointSize(3.0);
+	//if (qglPointParameterfEXT)
+	//{
+	//	qglPointSize(10.0);
+	//	qglPointParameterfEXT(GL_POINT_SIZE_MIN_EXT, 1.0);
+	//	qglPointParameterfEXT(GL_POINT_SIZE_MAX_EXT, 4.0);
+	//	//	qglPointParameterfEXT(GL_POINT_FADE_THRESHOLD_SIZE_EXT, 3.0);
+	//	qglPointParameterfvEXT(GL_DISTANCE_ATTENUATION_EXT, (float*)attenuation);
+	//}
+	//else
+	//{
+	//	qglPointSize(2.0);
+	//}
+
+	qglPointSize(2.0);
 
 	item = mSnowList;
 	qglBegin(GL_POINTS);
