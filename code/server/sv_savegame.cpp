@@ -356,9 +356,9 @@ void SV_SaveGame_f(void)
 		return;	// this prevents people saving via quick-save now during cinematics.
 
 #ifdef JK2_MODE
+	SCR_PrecacheScreenshot();
 	if ( !Q_stricmp (filename, "quik*") || !Q_stricmp (filename, "auto*") )
 	{
-		SCR_PrecacheScreenshot();
 		if ( filename[4]=='*' )
 			filename[4]=0;	//remove the *
 		SG_StoreSaveGameComment("");	// clear previous comment/description, which will force time/date comment.
