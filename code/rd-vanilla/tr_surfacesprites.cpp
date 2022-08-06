@@ -185,6 +185,16 @@ static void R_SurfaceSpriteFrameUpdate(void)
 
 	// Update the wind.
 	// If it is raining, get the windspeed from the rain system rather than the cvar
+#ifdef JK2_MODE
+	if (R_IsRaining() /*|| R_IsSnowing()*/ || R_IsSnowing())
+	{
+		curWeatherAmount = 1.0;
+	}
+	else
+	{
+		curWeatherAmount = r_surfaceWeather->value;
+	}
+#else
 	if (R_IsRaining() /*|| R_IsSnowing()*/ || R_IsPuffing() )
 	{
 		curWeatherAmount = 1.0;
@@ -193,7 +203,30 @@ static void R_SurfaceSpriteFrameUpdate(void)
 	{
 		curWeatherAmount = r_surfaceWeather->value;
 	}
+#endif 
 
+
+
+#ifdef JK2_MODE
+	if (R_GetWindSpeed(targetspeed))
+	{	// We successfully got a speed from the rain system.
+		// Set the windgust to 5, since that looks pretty good.
+		targetspeed *= 0.3f;
+		if (targetspeed >= 1.0)
+		{
+			curWindGust = 300 / targetspeed;
+		}
+		else
+		{
+			curWindGust = 0;
+		}
+	}
+	else
+	{	// Use the cvar.
+		targetspeed = r_windSpeed->value;	// Minimum gust delay, in seconds.
+		curWindGust = r_windGust->value;
+	}
+#else
 	if (R_GetWindSpeed(targetspeed, NULL))
 	{	// We successfully got a speed from the rain system.
 		// Set the windgust to 5, since that looks pretty good.
@@ -212,6 +245,7 @@ static void R_SurfaceSpriteFrameUpdate(void)
 		targetspeed = r_windSpeed->value;	// Minimum gust delay, in seconds.
 		curWindGust = r_windGust->value;
 	}
+#endif
 
 	if (targetspeed > 0 && curWindGust)
 	{
@@ -233,6 +267,19 @@ static void R_SurfaceSpriteFrameUpdate(void)
 		}
 	}
 
+
+#ifdef JK2_MODE
+	if (R_GetWindVector(retwindvec))
+	{
+		retwindvec[2] = 0;
+		VectorScale(retwindvec, -1.0f, retwindvec);
+		vectoangles(retwindvec, ang);
+	}
+	else
+	{	// Calculate the target wind vector based off cvars
+		ang[YAW] = r_windAngle->value;
+	}
+#else
 	// See if there is a weather system that will tell us a windspeed.
 	if (R_GetWindVector(retwindvec, NULL))
 	{
@@ -245,6 +292,7 @@ static void R_SurfaceSpriteFrameUpdate(void)
 		ang[YAW] = r_windAngle->value;
 	}
 
+#endif
 	ang[PITCH] = -90.0 + targetspeed;
 	if (ang[PITCH]>-45.0)
 	{

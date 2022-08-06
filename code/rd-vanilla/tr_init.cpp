@@ -2079,6 +2079,8 @@ extern "C" Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *
 	re.tr_distortionPrePost = get_tr_distortionPrePost;
 	re.tr_distortionNegate = get_tr_distortionNegate;
 
+
+#ifndef JK2_MODE
 	re.GetWindVector = R_GetWindVector;
 	re.GetWindGusting = R_GetWindGusting;
 	re.IsOutside = R_IsOutside;
@@ -2087,6 +2089,7 @@ extern "C" Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *
 	re.IsShaking = R_IsShaking;
 	re.AddWeatherZone = R_AddWeatherZone;
 	re.SetTempGlobalFogColor = R_SetTempGlobalFogColor;
+#endif
 
 	REX(SetRangedFog);
 
