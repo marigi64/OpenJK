@@ -356,6 +356,7 @@ void SV_SaveGame_f(void)
 		return;	// this prevents people saving via quick-save now during cinematics.
 
 #ifdef JK2_MODE
+	Con_Close();
 	SCR_PrecacheScreenshot();
 	if ( !Q_stricmp (filename, "quik*") || !Q_stricmp (filename, "auto*") )
 	{
