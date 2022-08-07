@@ -313,7 +313,7 @@ void SV_LoadTransition_f(void)
 	qbLoadTransition = qtrue;
 
 #ifdef JK2_MODE
-	SCR_PrecacheScreenshot2();
+	SCR_SetScreenshot(0, 0, 0);
 #endif
 	SV_Player_EndOfLevelSave();
 
