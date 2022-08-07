@@ -313,13 +313,16 @@ void SV_LoadTransition_f(void)
 	qbLoadTransition = qtrue;
 
 #ifdef JK2_MODE
-	SCR_SetScreenshot(0, 0, 0);
+	Con_Close();
+	SCR_PrecacheScreenshot();
 #endif
 	SV_Player_EndOfLevelSave();
 
 	//Save the full current state of the current map so we can return to it later
 	SG_WriteSavegame( va("hub/%s", sv_mapname->string), qfalse );
-
+#ifdef JK2_MODE
+	SCR_PrecacheScreenshot2();
+#endif
 	//set the spawntarget if there is one
 	spawntarget = Cmd_Argv(2);
 	if ( *spawntarget != '\0' )
