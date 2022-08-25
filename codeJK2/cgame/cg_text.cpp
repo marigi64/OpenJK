@@ -326,7 +326,7 @@ void CG_CaptionText( const char *str, int sound )
 			cg.scrollTextLines++;
 		}
 		else
-		if ( cgi_R_Font_StrLenPixels(cg.captionText[i], cgs.media.qhFontMedium, fFontScale) >= SCREEN_WIDTH)
+		if ( cgi_R_Font_StrLenPixels(cg.captionText[i], cgs.media.qhFontMedium, fFontScale) >= (SCREEN_WIDTH * cgs.widthRatioCoef))
 		{
 			// reached screen edge, so cap off string at bytepos after last good position...
 			//

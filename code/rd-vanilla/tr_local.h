@@ -1064,6 +1064,9 @@ typedef struct {
 	float					rangedFog;
 
 	float					distanceCull;
+
+	float					widthRatioCoef;
+
 } trGlobals_t;
 
 int		 R_Images_StartIteration(void);
@@ -1212,6 +1215,8 @@ extern	cvar_t	*r_showImages;
 extern	cvar_t	*r_debugSort;
 extern	cvar_t	*r_debugStyle;
 
+extern	cvar_t  *cl_ratioFix;
+
 /*
 Ghoul2 Insert Start
 */
@@ -1340,6 +1345,8 @@ qboolean	R_GetModeInfo( int *width, int *height, int mode );
 
 void		R_SetColorMappings( void );
 void		R_GammaCorrect( byte *buffer, int bufSize );
+
+void		R_Set2DRatio(void);
 
 void	R_ImageList_f( void );
 void	R_SkinList_f( void );

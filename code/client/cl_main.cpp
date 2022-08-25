@@ -79,6 +79,8 @@ cvar_t	*cl_inGameVideo;
 cvar_t	*cl_consoleKeys;
 cvar_t	*cl_consoleUseScanCode;
 
+cvar_t	*cl_ratioFix;
+
 clientActive_t		cl;
 clientConnection_t	clc;
 clientStatic_t		cls;
@@ -751,6 +753,15 @@ void CL_CheckUserinfo( void ) {
 }
 
 
+static void CL_UpdateWidescreen(void) 
+{
+	if (cl_ratioFix->integer)
+		cls.widthRatioCoef = (float)(SCREEN_WIDTH * cls.glconfig.vidHeight) / (float)(SCREEN_HEIGHT * cls.glconfig.vidWidth);
+	else
+		cls.widthRatioCoef = 1.0f;
+}
+
+
 /*
 ==================
 CL_Frame
@@ -938,6 +949,8 @@ void CL_InitRenderer( void ) {
 	cls.consoleShader = re.RegisterShader( "console" );
 	g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
 	g_consoleField.widthInChars = g_console_field_width;
+
+	CL_UpdateWidescreen();
 }
 
 /*
@@ -1297,6 +1310,8 @@ void CL_Init( void ) {
 	Cvar_Get ("snd", "jaden_fmle", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART );//UI_SetSexandSoundForModel changes to match sounds.cfg for model
 	Cvar_Get ("handicap", "100", CVAR_USERINFO | CVAR_SAVEGAME | CVAR_NORESTART);
 #endif
+
+	cl_ratioFix = Cvar_Get("cl_ratioFix", "1", CVAR_ARCHIVE );
 
 	//
 	// register our commands

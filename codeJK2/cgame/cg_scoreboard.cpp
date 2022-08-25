@@ -160,12 +160,13 @@ void CG_MissionCompletion(void)
 	char text[1024]={0};
 	int w,x,y;
 	const int pad = 18;
+	float xOffset = 0.5f * ((SCREEN_WIDTH / cgs.widthRatioCoef) - SCREEN_WIDTH);
 
 	cgi_SP_GetStringTextString( "INGAME_MISSIONCOMPLETION", text, sizeof(text) );
 w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontMedium, 1.2f);	
 	cgi_R_Font_DrawString(320 - w/2, 53, text, colorTable[CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.2f);
 
-	x = 75;
+	x = (75 + xOffset) * cgs.widthRatioCoef;
 	y =86;
 	cgi_SP_GetStringTextString( "INGAME_SECRETAREAS", text, sizeof(text) );
 w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 0.8f);	
@@ -218,7 +219,7 @@ w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 0.8f);
 		cgi_R_Font_DrawString(x+w, y, text, colorTable[CT_WHITE], cgs.media.qhFontSmall, -1, 0.8f);
 	}
 
-	x = 334+70;
+	x = ((334+70) + xOffset)* cgs.widthRatioCoef;
 	y = 86;
 	cgi_SP_GetStringTextString( "INGAME_SHOTSFIRED", text, sizeof(text) );
 w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 0.8f);	
@@ -293,7 +294,7 @@ w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 0.8f);
 
 //second column, LIGHT SABER
 	y = 180;
-	x = 140;
+	x = (140 + xOffset)* cgs.widthRatioCoef;
 	cgi_SP_GetStringTextString( "INGAME_LIGHTSABERUSE", text, sizeof(text) );
 	cgi_R_Font_DrawString(x, y, text, colorTable[CT_WHITE], cgs.media.qhFontSmall, -1, 0.8f);
 

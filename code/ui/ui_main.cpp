@@ -541,7 +541,7 @@ void _UI_Refresh( int realtime )
 	{
 		if (uiInfo.uiDC.cursorShow == qtrue)
 		{
-			UI_DrawHandlePic( uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
+			UI_DrawHandlePic( uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48 * cls.widthRatioCoef, 48, uiInfo.uiDC.Assets.cursor);
 		}
 	}
 }
@@ -3621,7 +3621,7 @@ _UI_DrawSides
 */
 void _UI_DrawSides(float x, float y, float w, float h, float size)
 {
-	size *= uiInfo.uiDC.xscale;
+	size *= uiInfo.uiDC.xscale * cls.widthRatioCoef;
 	trap_R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 	trap_R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }

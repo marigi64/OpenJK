@@ -1102,6 +1102,11 @@ const void *RB_RotatePic ( const void *data )
 {
 	const rotatePicCommand_t	*cmd;
 	shader_t *shader;
+	float ratio;
+	if (cl_ratioFix->integer)
+		ratio = ((float)(SCREEN_WIDTH * glConfig.vidHeight) / (float)(SCREEN_HEIGHT * glConfig.vidWidth));
+	else
+		ratio = 1.0f;
 
 	cmd = (const rotatePicCommand_t *)data;
 
@@ -1129,8 +1134,8 @@ const void *RB_RotatePic ( const void *data )
 	float c = cosf( angle );
 
 	matrix3_t m = {
-		{ c, s, 0.0f },
-		{ -s, c, 0.0f },
+		{ c * ratio, s, 0.0f },
+		{ -s * ratio, c, 0.0f },
 		{ cmd->x + cmd->w, cmd->y, 1.0f }
 	};
 
@@ -1190,6 +1195,11 @@ const void *RB_RotatePic2 ( const void *data )
 {
 	const rotatePicCommand_t	*cmd;
 	shader_t *shader;
+	float ratio;
+	if (cl_ratioFix->integer)
+		ratio = ((float)(SCREEN_WIDTH * glConfig.vidHeight) / (float)(SCREEN_HEIGHT * glConfig.vidWidth));
+	else
+		ratio = 1.0f;
 
 	cmd = (const rotatePicCommand_t *)data;
 
@@ -1220,8 +1230,8 @@ const void *RB_RotatePic2 ( const void *data )
 		float c = cosf( angle );
 
 		matrix3_t m = {
-			{ c, s, 0.0f },
-			{ -s, c, 0.0f },
+			{ c * ratio, s, 0.0f },
+			{ -s * ratio, c, 0.0f },
 			{ cmd->x, cmd->y, 1.0f }
 		};
 

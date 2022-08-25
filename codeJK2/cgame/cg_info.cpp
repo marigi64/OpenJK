@@ -157,14 +157,14 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 	{
 		y = missionYpos + (iYPixelsPerLine * missionYcnt);
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode");
-		CG_DrawPic( 320 - (128/2), y+8, 128, 32, graphic );
+		CG_DrawPic( 320 - (128/2), y+8, 128 * cgs.widthRatioCoef, 32, graphic );
 		obj_graphics[0] = qtrue;
 	}
 	else if (objectIndex == KEJIM_POST_OBJ3)
 	{
 		y = missionYpos + (iYPixelsPerLine * missionYcnt);
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode_red");
-		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
+		CG_DrawPic( 320 - (32/2), y+8, 32 * cgs.widthRatioCoef, 32, graphic );
 		obj_graphics[1] = qtrue;
 	}
 	else if (objectIndex == KEJIM_POST_OBJ4)
@@ -175,7 +175,7 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 			y += 32 + 4;
 		}
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode_green");
-		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
+		CG_DrawPic( 320 - (32/2), y+8, 32 * cgs.widthRatioCoef, 32, graphic );
 		obj_graphics[2] = qtrue;
 	}
 	else if (objectIndex == KEJIM_POST_OBJ5)
@@ -190,7 +190,7 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 			y += 32 + 4;
 		}
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode_blue");
-		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
+		CG_DrawPic( 320 - (32/2), y+8, 32 * cgs.widthRatioCoef, 32, graphic );
 		obj_graphics[3] = qtrue;
 	}
 }
@@ -242,10 +242,10 @@ void MissionInformation_Draw( centity_t *cent )
 			}
 
 			//	OBJECTIVE_STAT_PENDING
-			CG_DrawPic( 88,   totalY,   16,  16, cgs.media.messageObjCircle);	// Circle in front
+			CG_DrawPic(  88,   totalY,   16 * cgs.widthRatioCoef,  16, cgs.media.messageObjCircle);	// Circle in front
 			if (cent->gent->client->sess.mission_objectives[i].status == OBJECTIVE_STAT_SUCCEEDED)
 			{
-				CG_DrawPic( 88,   totalY,   16,  16, cgs.media.messageLitOn);	// Center Dot
+				CG_DrawPic( 88,   totalY,   16 * cgs.widthRatioCoef,  16, cgs.media.messageLitOn);	// Center Dot
 			}
 			MissionPrint_Line(CT_BLUE3, i, missionYcnt );
 		}
@@ -353,25 +353,28 @@ static void CG_LoadScreen_PersonalInfo(void)
 
 static void CG_LoadBar(void)
 {
+
+	float xOffset = 0.5f * ((SCREEN_WIDTH / cgs.widthRatioCoef) - SCREEN_WIDTH);
+
 	const int numticks = 9, tickwidth = 40, tickheight = 8;
 	const int tickpadx = 20, tickpady = 12;
 	const int capwidth = 8;
-	const int barwidth = numticks*tickwidth+tickpadx*2+capwidth*2, barleft = ((640-barwidth)/2);
+	const int barwidth = numticks * tickwidth + tickpadx * 2 + capwidth * 2, barleft = ((640-barwidth)/2);
 	const int barheight = tickheight + tickpady*2, bartop = 480-barheight;
 	const int capleft = barleft+tickpadx, tickleft = capleft+capwidth, ticktop = bartop+tickpady;
 
 	cgi_R_SetColor( colorTable[CT_WHITE]);
 	// Draw background
-	CG_DrawPic(barleft, bartop, barwidth, barheight, cgs.media.levelLoad);
+	CG_DrawPic((barleft + xOffset) * cgs.widthRatioCoef, bartop, barwidth * cgs.widthRatioCoef, barheight, cgs.media.levelLoad);
 
 	// Draw left cap (backwards)
-	CG_DrawPic(tickleft, ticktop, -capwidth, tickheight, cgs.media.loadTickCap);
+	CG_DrawPic((tickleft + xOffset)* cgs.widthRatioCoef, ticktop, -capwidth * cgs.widthRatioCoef, tickheight, cgs.media.loadTickCap);
 
 	// Draw bar
-	CG_DrawPic(tickleft, ticktop, tickwidth*cg.loadLCARSStage, tickheight, cgs.media.loadTick);
+	CG_DrawPic((tickleft + xOffset)* cgs.widthRatioCoef, ticktop, (tickwidth * cg.loadLCARSStage) * cgs.widthRatioCoef, tickheight, cgs.media.loadTick);
 
 	// Draw right cap
-	CG_DrawPic(tickleft+tickwidth*cg.loadLCARSStage, ticktop, capwidth, tickheight, cgs.media.loadTickCap);
+	CG_DrawPic(((tickleft+tickwidth * cg.loadLCARSStage) + xOffset) * cgs.widthRatioCoef, ticktop, capwidth, tickheight, cgs.media.loadTickCap);
 }
 
 /*

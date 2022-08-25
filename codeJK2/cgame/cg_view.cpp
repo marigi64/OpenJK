@@ -1250,7 +1250,10 @@ qboolean CG_CalcFOVFromX( float fov_x )
 	float	fov_y;
 	qboolean	inwater;
 
-	if ( cg_fovAspectAdjust.integer ) {
+	if ( cg_fovAspectAdjust.integer ) 
+	{
+		if (!in_camera)
+		{
 		// Based on LordHavoc's code for Darkplaces
 		// http://www.quakeworld.nu/forum/topic/53/what-does-your-qw-look-like/page/30
 		const float baseAspect = 0.75f; // 3/4
@@ -1258,6 +1261,30 @@ qboolean CG_CalcFOVFromX( float fov_x )
 		const float desiredFov = fov_x;
 
 		fov_x = atan( tan( desiredFov*M_PI / 360.0f ) * baseAspect*aspect )*360.0f / M_PI;
+
+
+		if (g_entities[cg.snap->ps.viewEntity].client->NPC_class == CLASS_MOUSE && !cg.renderingThirdPerson) // fixes too high fov for first person mouse droid
+			if (fov_x > 120)
+				fov_x = 120;
+		}
+	}
+
+
+
+	if (cg_cutscene_fovAspectAdjust.integer)
+	{
+
+		//if (!cg.snap->ps.viewEntity > 0 && !cg.snap->ps.viewEntity < ENTITYNUM_WORLD)
+		if (in_camera)
+		{
+			// Based on LordHavoc's code for Darkplaces
+			// http://www.quakeworld.nu/forum/topic/53/what-does-your-qw-look-like/page/30
+			const float baseAspect = 0.75f; // 3/4
+			const float aspect = (float)cgs.glconfig.vidWidth / (float)cgs.glconfig.vidHeight;
+			const float desiredFov = fov_x;
+
+			fov_x = atan(tan(desiredFov * M_PI / 360.0f) * baseAspect * aspect) * 360.0f / M_PI;
+		}
 	}
 
 	x = cg.refdef.width / tan( fov_x / 360 * M_PI );

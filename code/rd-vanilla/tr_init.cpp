@@ -183,7 +183,10 @@ cvar_t	*sp_language;			// JK2
 cvar_t	*com_buildScript;
 
 cvar_t	*r_environmentMapping;
-cvar_t *r_screenshotJpegQuality;
+cvar_t	*r_screenshotJpegQuality;
+
+
+cvar_t	*cl_ratioFix;
 
 #if !defined(__APPLE__)
 PFNGLSTENCILOPSEPARATEPROC qglStencilOpSeparate;
@@ -237,6 +240,16 @@ PFNGLPOINTPARAMETERFVEXTPROC qglPointParameterfvEXT;
 bool g_bTextureRectangleHack = false;
 
 void RE_SetLightStyle(int style, int color);
+
+void R_Set2DRatio(void) {
+	if (cl_ratioFix->integer)
+		tr.widthRatioCoef = ((float)(SCREEN_WIDTH * glConfig.vidHeight) / (float)(SCREEN_HEIGHT * glConfig.vidWidth));
+	else
+		tr.widthRatioCoef = 1.0f;
+
+	if (tr.widthRatioCoef > 1)
+		tr.widthRatioCoef = 1.0f;
+}
 
 void R_Splash()
 {
@@ -1663,6 +1676,8 @@ void R_Register( void )
 	r_shadows = ri.Cvar_Get( "cg_shadows", "1", 0 );
 	r_shadowRange = ri.Cvar_Get( "r_shadowRange", "1000", CVAR_ARCHIVE_ND );
 
+	cl_ratioFix = ri.Cvar_Get("cl_ratioFix", "1", CVAR_ARCHIVE );
+
 /*
 Ghoul2 Insert Start
 */
@@ -1789,6 +1804,7 @@ void R_Init( void ) {
 		RE_SetLightStyle( i, ba->i );
 	}
 	InitOpenGL();
+	R_Set2DRatio();
 
 	R_InitImages();
 	R_InitShaders();

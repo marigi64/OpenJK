@@ -1916,7 +1916,36 @@ static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
 		//
 		////////////////////////////////////////////////////////////////////
 
+		extern	cvar_t* cl_ratioFix;
+		float square_ratio;
+
+		if (cl_ratioFix->integer)
+		{
+		square_ratio = (float)(640 * cls.glconfig.vidHeight) / (float)(640 * cls.glconfig.vidWidth);
+		}
+		else
+		square_ratio = 1;
+
+		float xOffset_square = 0.5f * (20 + ((SCREEN_WIDTH / square_ratio) - SCREEN_WIDTH));
+		float xOffset = 0.5f * ((SCREEN_WIDTH / cls.widthRatioCoef) - SCREEN_WIDTH);
+
+
+		if (!Q_stricmp(arg, "video/openinglogos.roq"))
+		{
+		CL_handle = CIN_PlayCinematic(arg, xOffset * cls.widthRatioCoef, 0, SCREEN_WIDTH * cls.widthRatioCoef, SCREEN_HEIGHT, bits, psAudioFile);
+		}
+		else if (!Q_stricmp(arg, "video/outcast.roq"))
+		{
+			CL_handle = CIN_PlayCinematic(arg, xOffset_square * square_ratio, 0, SCREEN_WIDTH * square_ratio, SCREEN_HEIGHT, bits, psAudioFile);
+		}
+		else
+		{
 		CL_handle = CIN_PlayCinematic( arg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, bits, psAudioFile );
+		}
+		
+
+
+
 		if (CL_handle >= 0)
 		{
 			cinTable[CL_handle].hCRAWLTEXT = hCrawl;
@@ -2043,6 +2072,10 @@ void SCR_RunCinematic (void)
 
 	if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
 		e_status Status = CIN_RunCinematic(CL_handle);
+
+
+		SCR_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, colorTable[CT_BLACK]);
+
 
 		if (CL_IsRunningInGameCinematic() && Status == FMV_IDLE  && !cinTable[CL_handle].holdAtEnd)
 		{

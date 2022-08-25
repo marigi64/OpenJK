@@ -2458,12 +2458,23 @@ Ghoul2 Insert End
 	// hash value of the shader text, and comparing it against a precalculated
 	// value.
 	uint32_t shaderHash = generateHashValueForText( begin, *text - begin );
+
+#ifdef JK2_MODE
+	if 
+		(Q_stricmp(shader.name, "gfx/2d/wedge") == 0)
+	{
+		stages[0].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
+		stages[0].stateBits |= GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
+	}
+#else
 	if ( shaderHash == RETAIL_ROCKET_WEDGE_SHADER_HASH &&
 		Q_stricmp( shader.name, "gfx/2d/wedge" ) == 0 )
 	{
 		stages[0].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
 		stages[0].stateBits |= GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
 	}
+#endif
+
 
 	// The basejka radar arrow contains an incorrect rgbGen of identity
 	// It only worked because the original code didn't check shaders at all,

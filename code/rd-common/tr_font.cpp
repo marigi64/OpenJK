@@ -1349,7 +1349,7 @@ const glyphInfo_t *CFontInfo::GetLetter(const unsigned int uiLetter, int *piShad
 		ASSIGN_WITH_ROUNDING( m_AsianGlyph.height,		pGlyph->height );
 		ASSIGN_WITH_ROUNDING( m_AsianGlyph.horizAdvance,pGlyph->horizAdvance );
 //		m_AsianGlyph.horizOffset	= /*Round*/( m_fAltSBCSFontScaleFactor * pGlyph->horizOffset );
-		ASSIGN_WITH_ROUNDING( m_AsianGlyph.width,		pGlyph->width );
+		ASSIGN_WITH_ROUNDING( m_AsianGlyph.width,		pGlyph->width * tr.widthRatioCoef );
 
 		pGlyph = &m_AsianGlyph;
 	}
@@ -1493,6 +1493,9 @@ int RE_Font_StrLenPixels(const char *psText, const int iFontHandle, const float 
 			int iPixelAdvance = curfont->GetLetterHorizAdvance( uiLetter );
 
 			float fValue = iPixelAdvance * ((uiLetter > 255) ? fScaleAsian : fScale);
+
+			fValue *= tr.widthRatioCoef;
+
 			fThisWidth += curfont->mbRoundCalcs ? Round( fValue ) : fValue;
 			if (fThisWidth > fMaxWidth)
 			{
@@ -1720,7 +1723,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 			break;
 		case 32:						// Space
 			pLetter = curfont->GetLetter(' ');
-			fx += curfont->mbRoundCalcs ? Round(pLetter->horizAdvance * fScale) : pLetter->horizAdvance * fScale;
+			fx += curfont->mbRoundCalcs ? Round(pLetter->horizAdvance * fScale) : pLetter->horizAdvance * fScale * tr.widthRatioCoef;
 			bNextTextWouldOverflow = (qboolean)(
 				iMaxPixelWidth != -1 &&
 				((fx - fox) > (float)iMaxPixelWidth));
@@ -1746,7 +1749,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 
 				RE_StretchPic(curfont->mbRoundCalcs ? fx + Round(pLetter->horizOffset * fThisScale) : fx + pLetter->horizOffset * fThisScale, // float x
 								(uiLetter > 255) ? fy - fAsianYAdjust : fy,	// float y
-								curfont->mbRoundCalcs ? Round(pLetter->width * fThisScale) : pLetter->width * fThisScale,	// float w
+								curfont->mbRoundCalcs ? Round(pLetter->width * fThisScale) : pLetter->width * fThisScale * tr.widthRatioCoef,	// float w
 								curfont->mbRoundCalcs ? Round(pLetter->height * fThisScale) : pLetter->height * fThisScale, // float h
 								pLetter->s,						// float s1
 								pLetter->t,						// float t1
@@ -1756,7 +1759,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 								hShader							// qhandle_t hShader
 								);
 
-				fx += fAdvancePixels;
+				fx += fAdvancePixels * tr.widthRatioCoef;
 			}
 			break;
 		}

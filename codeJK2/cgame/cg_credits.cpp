@@ -488,6 +488,8 @@ qboolean CG_Credits_Draw( void )
 	if ( CG_Credits_Running() )
 	{
 		const int iFontHeight = (int) (1.5f * (float) cgi_R_Font_HeightPixels(ghFontHandle, gfFontScale));	// taiwanese & japanese need 1.5 fontheight spacing
+		float xOffset = 0.5f * ((SCREEN_WIDTH / cgs.widthRatioCoef) - SCREEN_WIDTH);
+
 
 //		cgi_R_SetColor( *gpv4Color );
 
@@ -614,7 +616,7 @@ qboolean CG_Credits_Draw( void )
 						bool bIsDotted = !!CreditLine.vstrText.size();	// eg "STUNTS ...................... MR ED"
 
 						int iWidth = CreditLine.strText.GetPixelLength();
-						int iXpos  = bIsDotted ? 4 : (SCREEN_WIDTH - iWidth)/2;
+						int iXpos  = bIsDotted ? (4 + xOffset)* cgs.widthRatioCoef  : (SCREEN_WIDTH - iWidth)/2;
 
 						gv4Color[3] = 1.0f;
 
@@ -626,7 +628,7 @@ qboolean CG_Credits_Draw( void )
 						{
 							StringAndSize_t &StringAndSize = CreditLine.vstrText[i];
 							iWidth = StringAndSize.GetPixelLength();
-							iXpos  = (SCREEN_WIDTH-4 - iWidth);
+							iXpos  = (((SCREEN_WIDTH + xOffset) * cgs.widthRatioCoef )-4 - iWidth);
 							cgi_R_Font_DrawString(iXpos, iYpos, StringAndSize.c_str(), gv4Color, ghFontHandle, -1, gfFontScale);
 							iYpos += iFontHeight;
 						}
