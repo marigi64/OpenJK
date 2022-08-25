@@ -1263,7 +1263,11 @@ qboolean CG_CalcFOVFromX( float fov_x )
 		fov_x = atan( tan( desiredFov*M_PI / 360.0f ) * baseAspect*aspect )*360.0f / M_PI;
 
 
-		if (g_entities[cg.snap->ps.viewEntity].client->NPC_class == CLASS_MOUSE && !cg.renderingThirdPerson) // fixes too high fov for first person mouse droid
+
+		gentity_t* gent = &g_entities[cg.snap->ps.viewEntity];
+		
+
+		if (gent->client && (gent->client->NPC_class == CLASS_MOUSE && !cg.renderingThirdPerson)) // fixes too high fov for first person mouse droid
 			if (fov_x > 120)
 				fov_x = 120;
 		}
