@@ -1616,7 +1616,7 @@ static void CIN_AddTextCrawl()
 	refdef.fov_y = 130;
 
 	refdef.x = 0;
-	refdef.y = -50;
+	refdef.y = cls.glconfig.vidHeight/-6.75;
 	refdef.width = cls.glconfig.vidWidth;
 	refdef.height = cls.glconfig.vidHeight * 2; // deliberately extend off the bottom of the screen
 
