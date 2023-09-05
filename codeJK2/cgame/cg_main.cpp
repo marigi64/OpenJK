@@ -287,6 +287,7 @@ vmCvar_t	cg_simpleItems;
 vmCvar_t	cg_fov;
 vmCvar_t	cg_fovAspectAdjust;
 vmCvar_t	cg_cutscene_fovAspectAdjust;
+vmCvar_t	cg_cutscene_borders;
 vmCvar_t	cg_missionstatusscreen;
 vmCvar_t	cg_endcredits;
 vmCvar_t	cg_updatedDataPadForcePower1;
@@ -356,6 +357,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_fov, "cg_fov", "80", CVAR_ARCHIVE },
 	{ &cg_fovAspectAdjust, "cg_fovAspectAdjust", "1", CVAR_ARCHIVE },
 	{ &cg_cutscene_fovAspectAdjust, "cg_cutscene_fovAspectAdjust", "1", CVAR_ARCHIVE },
+	{ &cg_cutscene_borders, "cg_cutscene_borders", "1", CVAR_ARCHIVE },
 	{ &cg_stereoSeparation, "cg_stereoSeparation", "0.4", CVAR_ARCHIVE  },
 	{ &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE  },
 
@@ -453,7 +455,7 @@ Ghoul2 Insert End
 	{ &cg_smoothPlayerPlat, "cg_smoothPlayerPlat", "0.75", 0},
 	{ &cg_smoothPlayerPlatAccel, "cg_smoothPlayerPlatAccel", "3.25", 0},
 
-	{ &cl_ratioFix, "cl_ratiofix", "", 1}
+	{ &cl_ratioFix, "cl_ratiofix", "1", 1}
 };
 
 static const size_t cvarTableSize = ARRAY_LEN( cvarTable );

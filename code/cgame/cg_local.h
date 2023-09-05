@@ -604,6 +604,7 @@ extern	vmCvar_t		cg_simpleItems;
 extern	vmCvar_t		cg_fov;
 extern	vmCvar_t		cg_fovAspectAdjust;
 extern	vmCvar_t		cg_cutscene_fovAspectAdjust;
+extern	vmCvar_t		cg_cutscene_borders;
 extern	vmCvar_t		cg_endcredits;
 extern	vmCvar_t		cg_updatedDataPadForcePower1;
 extern	vmCvar_t		cg_updatedDataPadForcePower2;

@@ -1193,9 +1193,12 @@ void CGCam_DrawWideScreen( void )
 
 		modulate[0] = modulate[1] = modulate[2] = 0.0f;
 		modulate[3] = client_camera.bar_alpha;
-	
-		CG_FillRect( cg.refdef.x, cg.refdef.y, 640, client_camera.bar_height, modulate  );
-		CG_FillRect( cg.refdef.x, cg.refdef.y + 480 - client_camera.bar_height, 640, client_camera.bar_height, modulate  );
+
+		if (cg_cutscene_borders.integer)
+		{
+			CG_FillRect(cg.refdef.x, cg.refdef.y, 640, client_camera.bar_height, modulate);
+			CG_FillRect(cg.refdef.x, cg.refdef.y + 480 - client_camera.bar_height, 640, client_camera.bar_height, modulate);
+		}
 	}
 
 	//NOTENOTE: Camera always draws the fades unless the alpha is 0
