@@ -1158,7 +1158,7 @@ void Com_Init( char *commandLine ) {
 			// if the user didn't give any commands, run default action
 			if ( com_bootlogo->integer )
 			{
-				Cbuf_AddText ("cinematic openinglogos\n");
+				Cbuf_AddText ("cinematic openinglogos; wait; wait; disconnect; wait; cinematic openinglogos\n");
 			}
 		}
 		com_fullyInitialized = qtrue;
