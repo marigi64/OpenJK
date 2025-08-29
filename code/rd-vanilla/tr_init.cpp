@@ -231,6 +231,11 @@ PFNGLISPROGRAMARBPROC qglIsProgramARB;
 PFNGLLOCKARRAYSEXTPROC qglLockArraysEXT;
 PFNGLUNLOCKARRAYSEXTPROC qglUnlockArraysEXT;
 
+#ifdef JK2_MODE
+PFNGLPOINTPARAMETERFEXTPROC qglPointParameterfEXT;
+PFNGLPOINTPARAMETERFVEXTPROC qglPointParameterfvEXT;
+#endif
+
 bool g_bTextureRectangleHack = false;
 
 void RE_SetLightStyle(int style, int color);
@@ -521,6 +526,32 @@ static void GLimp_InitExtensions( void )
 	{
 		Com_Printf ("...GL_EXT_compiled_vertex_array not found\n" );
 	}
+
+#ifdef JK2_MODE
+	qglPointParameterfEXT = NULL;
+	qglPointParameterfvEXT = NULL;
+	if (strstr(glConfig.extensions_string, "GL_EXT_point_parameters"))
+	{
+		if (r_ext_compiled_vertex_array->integer || 1)
+		{
+			ri.Printf(PRINT_ALL, "...using GL_EXT_point_parameters\n");
+			qglPointParameterfEXT = (PFNGLPOINTPARAMETERFEXTPROC)ri.GL_GetProcAddress("glPointParameterfEXT");
+			qglPointParameterfvEXT = (PFNGLPOINTPARAMETERFVEXTPROC)ri.GL_GetProcAddress("glPointParameterfvEXT");
+			if (!qglPointParameterfEXT || !qglPointParameterfvEXT)
+			{
+				ri.Error(ERR_FATAL, "bad getprocaddress");
+			}
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_point_parameters\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_point_parameters not found\n");
+	}
+#endif
 
 	bool bNVRegisterCombiners = false;
 	// Register Combiners.
@@ -2078,6 +2109,7 @@ extern "C" Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *
 	re.tr_distortionPrePost = get_tr_distortionPrePost;
 	re.tr_distortionNegate = get_tr_distortionNegate;
 
+#ifndef JK2_MODE
 	re.GetWindVector = R_GetWindVector;
 	re.GetWindGusting = R_GetWindGusting;
 	re.IsOutside = R_IsOutside;
@@ -2086,6 +2118,7 @@ extern "C" Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *
 	re.IsShaking = R_IsShaking;
 	re.AddWeatherZone = R_AddWeatherZone;
 	re.SetTempGlobalFogColor = R_SetTempGlobalFogColor;
+#endif
 
 	REX(SetRangedFog);
 

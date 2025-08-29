@@ -121,6 +121,7 @@ static void R_SurfaceSpriteFrameUpdate(void)
 		nextGustTime = 0;
 		gustLeft = 0;
 		curWindGrassDir[0]=curWindGrassDir[1]=curWindGrassDir[2]=0.0f;
+		lastSSUpdateTime = backEnd.refdef.time;
 	}
 
 	// Reset the last entity drawn, since this is a new frame.
@@ -185,7 +186,11 @@ static void R_SurfaceSpriteFrameUpdate(void)
 
 	// Update the wind.
 	// If it is raining, get the windspeed from the rain system rather than the cvar
+#ifdef JK2_MODE
+	if (R_IsRaining() || R_IsSnowing())
+#else
 	if (R_IsRaining() /*|| R_IsSnowing()*/ || R_IsPuffing() )
+#endif
 	{
 		curWeatherAmount = 1.0;
 	}
@@ -194,10 +199,17 @@ static void R_SurfaceSpriteFrameUpdate(void)
 		curWeatherAmount = r_surfaceWeather->value;
 	}
 
+#ifdef JK2_MODE
+	if (R_GetWindSpeed(targetspeed))
+	{	// We successfully got a speed from the rain system.
+		// Set the windgust to 5, since that looks pretty good.
+		targetspeed *= 0.3f;
+#else
 	if (R_GetWindSpeed(targetspeed, NULL))
 	{	// We successfully got a speed from the rain system.
 		// Set the windgust to 5, since that looks pretty good.
 		targetspeed *= 0.02f;
+#endif
 		if (targetspeed >= 1.0)
 		{
 			curWindGust = 300/targetspeed;
@@ -234,9 +246,16 @@ static void R_SurfaceSpriteFrameUpdate(void)
 	}
 
 	// See if there is a weather system that will tell us a windspeed.
+#ifdef JK2_MODE
+	if (R_GetWindVector(retwindvec))
+#else
 	if (R_GetWindVector(retwindvec, NULL))
+#endif
 	{
 		retwindvec[2]=0;
+#ifdef JK2_MODE
+		VectorScale(retwindvec, -1.0f, retwindvec);
+#endif
 		//VectorScale(retwindvec, -1.0f, retwindvec);
 		vectoangles(retwindvec, ang);
 	}
