@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
@@ -1615,10 +1615,56 @@ static void CIN_AddTextCrawl()
 	refdef.fov_x = 130;
 	refdef.fov_y = 130;
 
-	refdef.x = 0;
-	refdef.y = -50;
-	refdef.width = cls.glconfig.vidWidth;
-	refdef.height = cls.glconfig.vidHeight * 2; // deliberately extend off the bottom of the screen
+	extern cvar_t* cl_FMV_RatioFix;
+
+	const float baseAspect = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
+	float screenAspect = (float)cls.glconfig.vidWidth / (float)cls.glconfig.vidHeight;
+	const float targetAspect = 16.0f / 9.0f;
+	const float altAspect = 320.0f / 169.0f; //ratio for letterbox FMVs stretched to 4:3
+
+	float visibleHeight;
+	float planeWidth = TC_PLANE_WIDTH;
+
+	if (cl_FMV_RatioFix && cl_FMV_RatioFix->integer)
+	{
+		planeWidth = 200.0f;
+
+		refdef.width = (int)(cls.glconfig.vidHeight * baseAspect);
+		refdef.height = (int)((refdef.width / altAspect) * 2);
+		refdef.x = (cls.glconfig.vidWidth - refdef.width) / 2;
+
+		visibleHeight = refdef.height / 2;
+		refdef.y = (cls.glconfig.vidHeight - (int)visibleHeight) / 2;
+		
+		if (cl_FMV_RatioFix->value >= 2)
+		{
+			if (screenAspect > targetAspect)
+			{
+				// Wider than 16:9
+				refdef.width = (int)(cls.glconfig.vidHeight * targetAspect);
+				refdef.height = cls.glconfig.vidHeight * 2;
+				refdef.x = (cls.glconfig.vidWidth - refdef.width) / 2;
+				refdef.y = 0;
+			}
+			else
+			{
+				// Taller or equal to 16:9
+				refdef.width = cls.glconfig.vidWidth;
+				refdef.height = (int)((cls.glconfig.vidWidth / targetAspect) * 2);
+				refdef.x = 0;
+
+				visibleHeight = cls.glconfig.vidWidth / targetAspect;
+				refdef.y = (cls.glconfig.vidHeight - (int)visibleHeight) / 2;
+			}
+		}
+	}
+	else
+	{
+		refdef.x = 0;
+		refdef.y = -50;
+		refdef.width = cls.glconfig.vidWidth;
+		refdef.height = cls.glconfig.vidHeight * 2; // deliberately extend off the bottom of the screen
+	}
 
 	// use to set shaderTime for scrolling shaders
 	refdef.time = 0;
@@ -1649,19 +1695,19 @@ static void CIN_AddTextCrawl()
 	VectorScaleM( verts[3].modulate, 0.1f, verts[3].modulate );
 
 #define TIMEOFFSET  +(cls.realtime-CL_iPlaybackStartTime-TC_DELAY)*0.000015f -1
-	VectorSet( verts[0].xyz, TC_PLANE_NEAR, -TC_PLANE_WIDTH, TC_PLANE_TOP );
+	VectorSet( verts[0].xyz, TC_PLANE_NEAR, -planeWidth, TC_PLANE_TOP );
 	verts[0].st[0] = 1;
 	verts[0].st[1] = 1 TIMEOFFSET;
 
-	VectorSet( verts[1].xyz, TC_PLANE_NEAR, TC_PLANE_WIDTH, TC_PLANE_TOP );
+	VectorSet( verts[1].xyz, TC_PLANE_NEAR, planeWidth, TC_PLANE_TOP );
 	verts[1].st[0] = 0;
 	verts[1].st[1] = 1 TIMEOFFSET;
 
-	VectorSet( verts[2].xyz, TC_PLANE_FAR, TC_PLANE_WIDTH, TC_PLANE_BOTTOM );
+	VectorSet( verts[2].xyz, TC_PLANE_FAR, planeWidth, TC_PLANE_BOTTOM );
 	verts[2].st[0] = 0;
 	verts[2].st[1] = 0 TIMEOFFSET;
 
-	VectorSet( verts[3].xyz, TC_PLANE_FAR, -TC_PLANE_WIDTH, TC_PLANE_BOTTOM );
+	VectorSet( verts[3].xyz, TC_PLANE_FAR, -planeWidth, TC_PLANE_BOTTOM );
 	verts[3].st[0] = 1;
 	verts[3].st[1] = 0 TIMEOFFSET;
 
@@ -1815,6 +1861,36 @@ static qboolean CIN_HardwareReadyToPlayVideos(void)
 	return qfalse;
 }
 
+// returns qtrue if arg is a JK/J A letterboxed cutscene
+static qboolean IsLetterboxedFMV(const char* arg)
+{
+	const char* base;
+	// strip path (handles both '/' and '\')
+	base = strrchr(arg, '/');
+	if (!base) base = strrchr(arg, '\\');
+	base = base ? base + 1 : arg; // point to filename
+
+	// handle exact special cases first
+	if (!Q_stricmp(base, "jk0101.roq") || !Q_stricmp(base, "jk0101_sw.roq"))
+		return qtrue;
+
+	// JK: prefix "jk" then a number (jk01..jk09)
+	if (!Q_stricmpn(base, "jk", 2)) {
+		int num = atoi(base + 2); // atoi stops at non-digit, so "jk05.roq" works
+		if (num >= 1 && num <= 9)
+			return qtrue;
+	}
+
+	// JA: prefix "ja" then a number (ja01..ja12)
+	if (!Q_stricmpn(base, "ja", 2)) {
+		int num = atoi(base + 2);
+		if (num >= 1 && num <= 12)
+			return qtrue;
+	}
+
+	return qfalse;
+}
+
 
 static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
 {
@@ -1915,8 +1991,55 @@ static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
 		}
 		//
 		////////////////////////////////////////////////////////////////////
+		// Ratio Fix
+		extern cvar_t* cl_FMV_RatioFix; // your CVAR
+		int destX = 0;
+		int destY = 0;
+		int destW = SCREEN_WIDTH;
+		int destH = SCREEN_HEIGHT;
 
-		CL_handle = CIN_PlayCinematic( arg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, bits, psAudioFile );
+		if (cl_FMV_RatioFix && cl_FMV_RatioFix->integer)
+		{
+			const float baseAspect = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
+			float screenAspect = (float)cls.glconfig.vidWidth / (float)cls.glconfig.vidHeight;
+
+			if (screenAspect >= baseAspect)
+			{
+				destW = (int)roundf(SCREEN_WIDTH * (baseAspect / screenAspect));
+				destH = SCREEN_HEIGHT;
+				destX = (SCREEN_WIDTH - destW) / 2;
+				destY = 0;
+			}
+			else
+			{
+				destW = SCREEN_WIDTH;
+				destH = (int)roundf((float)SCREEN_WIDTH / baseAspect);
+				destX = 0;
+				destY = (SCREEN_HEIGHT - destH) / 2;
+			}
+
+			if (IsLetterboxedFMV(arg) && cl_FMV_RatioFix->value >= 2)
+			{
+				const float targetAspect = 16.0f / 9.0f;
+				const float unsquish = (float)SCREEN_HEIGHT / 338.0f; // (480/338)
+
+				if (screenAspect >= targetAspect)
+				{
+					destH = (int)roundf((float)SCREEN_HEIGHT * unsquish);
+					destW = (int)roundf((float)SCREEN_WIDTH * (targetAspect / screenAspect));
+					destX = (SCREEN_WIDTH - destW) / 2;
+					destY = (SCREEN_HEIGHT - destH) / 2;
+				}
+				else
+				{
+					destH = (int)roundf(((float)SCREEN_WIDTH / targetAspect) * unsquish);
+					destW = SCREEN_WIDTH;
+					destX = 0;
+					destY = (SCREEN_HEIGHT - destH) / 2;
+				}
+			}
+		}
+		CL_handle = CIN_PlayCinematic(arg, destX, destY, destW, destH, bits, psAudioFile);
 		if (CL_handle >= 0)
 		{
 			cinTable[CL_handle].hCRAWLTEXT = hCrawl;
@@ -2043,6 +2166,8 @@ void SCR_RunCinematic (void)
 
 	if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
 		e_status Status = CIN_RunCinematic(CL_handle);
+
+		SCR_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, colorTable[CT_BLACK]);
 
 		if (CL_IsRunningInGameCinematic() && Status == FMV_IDLE  && !cinTable[CL_handle].holdAtEnd)
 		{
