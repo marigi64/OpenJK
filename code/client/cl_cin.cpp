@@ -1620,7 +1620,7 @@ static void CIN_AddTextCrawl()
 	const float baseAspect = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
 	float screenAspect = (float)cls.glconfig.vidWidth / (float)cls.glconfig.vidHeight;
 	const float targetAspect = 16.0f / 9.0f;
-	const float altAspect = 320.0f / 169.0f; //ratio for letterbox FMVs stretched to 4:3
+	const float altAspect = 640.0f / 338.0f; //ratio for letterbox FMVs stretched to 4:3
 
 	float visibleHeight;
 	float planeWidth = TC_PLANE_WIDTH;
@@ -1638,9 +1638,9 @@ static void CIN_AddTextCrawl()
 		
 		if (cl_FMV_RatioFix->value >= 2)
 		{
-			if (screenAspect > targetAspect)
+			if (screenAspect >= targetAspect)
 			{
-				// Wider than 16:9
+				// Wider or equal to 16:9
 				refdef.width = (int)(cls.glconfig.vidHeight * targetAspect);
 				refdef.height = cls.glconfig.vidHeight * 2;
 				refdef.x = (cls.glconfig.vidWidth - refdef.width) / 2;
@@ -1648,12 +1648,12 @@ static void CIN_AddTextCrawl()
 			}
 			else
 			{
-				// Taller or equal to 16:9
+				// Taller than 16:9
 				refdef.width = cls.glconfig.vidWidth;
-				refdef.height = (int)((cls.glconfig.vidWidth / targetAspect) * 2);
+				refdef.height = (int)((cls.glconfig.vidWidth / altAspect) * 2);
 				refdef.x = 0;
 
-				visibleHeight = cls.glconfig.vidWidth / targetAspect;
+				visibleHeight = refdef.height / 2;
 				refdef.y = (cls.glconfig.vidHeight - (int)visibleHeight) / 2;
 			}
 		}
@@ -2010,29 +2010,22 @@ static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
 				destX = (SCREEN_WIDTH - destW) / 2;
 				destY = 0;
 			}
-			else
-			{
-				destW = SCREEN_WIDTH;
-				destH = (int)roundf((float)SCREEN_WIDTH / baseAspect);
-				destX = 0;
-				destY = (SCREEN_HEIGHT - destH) / 2;
-			}
 
 			if (IsLetterboxedFMV(arg) && cl_FMV_RatioFix->value >= 2)
 			{
 				const float targetAspect = 16.0f / 9.0f;
-				const float unsquish = (float)SCREEN_HEIGHT / 338.0f; // (480/338)
+				const float stretch = (float)SCREEN_HEIGHT / 338.0f;
 
 				if (screenAspect >= targetAspect)
 				{
-					destH = (int)roundf((float)SCREEN_HEIGHT * unsquish);
+					destH = (int)roundf((float)SCREEN_HEIGHT * stretch);
 					destW = (int)roundf((float)SCREEN_WIDTH * (targetAspect / screenAspect));
 					destX = (SCREEN_WIDTH - destW) / 2;
 					destY = (SCREEN_HEIGHT - destH) / 2;
 				}
 				else
 				{
-					destH = (int)roundf(((float)SCREEN_WIDTH / targetAspect) * unsquish);
+					destH = (int)roundf(((float)SCREEN_HEIGHT)) * (screenAspect / baseAspect);
 					destW = SCREEN_WIDTH;
 					destX = 0;
 					destY = (SCREEN_HEIGHT - destH) / 2;
