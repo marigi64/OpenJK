@@ -1186,8 +1186,11 @@ void CGCam_DrawWideScreen( void )
 {
 	vec4_t	modulate;
 
+	float aspect = (float)cg.refdef.width / (float)cg.refdef.height;
+	float targetAspect = 5.0f / 3.0f;
+
 	//Only draw if visible
-	if ( client_camera.bar_alpha )
+	if ( (aspect < targetAspect || cg_forceCutsceneBorders.integer) && client_camera.bar_alpha )
 	{
 		CGCam_UpdateBarFade();
 
