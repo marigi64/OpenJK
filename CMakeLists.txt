@@ -16,7 +16,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #============================================================================
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
 
 set(InOpenJK ON)
@@ -31,7 +31,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 # Customizable options
 #
 #=============================================================================
-option(BuildPortableVersion "Build portable version (does not read or write files from your user/home directory" OFF)
+option(BuildPortableVersion "Build portable version (does not read or write files from your user/home directory" ON)
 
 option(BuildMPEngine "Whether to create projects for the MP client (openjk.exe)" ON)
 option(BuildMPRdVanilla "Whether to create projects for the MP default renderer (rd-vanilla_x86.dll)" ON)
@@ -45,9 +45,9 @@ option(BuildSPEngine "Whether to create projects for the SP engine (openjk_sp.ex
 option(BuildSPGame "Whether to create projects for the SP gamecode (jagamex86.dll)" ON)
 option(BuildSPRdVanilla "Whether to create projects for the SP default renderer (rdsp-vanilla_x86.dll)" ON)
 
-option(BuildJK2SPEngine "Whether to create projects for the jk2 SP engine (openjo_sp.exe)" OFF)
-option(BuildJK2SPGame "Whether to create projects for the jk2 sp gamecode mod (jk2gamex86.dll)" OFF)
-option(BuildJK2SPRdVanilla "Whether to create projects for the jk2 sp renderer (rdjosp-vanilla_x86.dll)" OFF)
+option(BuildJK2SPEngine "Whether to create projects for the jk2 SP engine (openjo_sp.exe)" ON)
+option(BuildJK2SPGame "Whether to create projects for the jk2 sp gamecode mod (jk2gamex86.dll)" ON)
+option(BuildJK2SPRdVanilla "Whether to create projects for the jk2 sp renderer (rdjosp-vanilla_x86.dll)" ON)
 
 option(BuildTests "Whether to build automatic unit tests (requires Boost)" OFF)
 option(UseAddressSanitizer "Whether to enable runtime address sanitizer" OFF)
