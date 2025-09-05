@@ -194,5 +194,3 @@ compile_commands.json
 #############
 [Bb]uild*/
 cmake-build-*
-CreateVisualStudio2022Projects.bat
-CMakeLists.txt
