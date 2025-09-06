@@ -1256,12 +1256,19 @@ static qboolean ParseStage( shaderStage_t *stage, const char **text )
 			}
 			else
 			{
+				GLenum wrap = GL_REPEAT;
+#ifdef JK2_MODE
+				if (!Q_stricmp(token, "gfx/hud/hudleft") ||
+					!Q_stricmp(token, "gfx/hud/hudrightframe") ||
+					!Q_stricmp(token, "gfx/menus/menu4") )
+					wrap = GL_CLAMP;
+#endif
 				stage->bundle[0].image = R_FindImageFile(
 					token,
 					(qboolean)!shader.noMipMaps,
 					(qboolean)!shader.noPicMip,
 					(qboolean)!shader.noTC,
-					GL_REPEAT );
+					wrap );
 				if ( !stage->bundle[0].image )
 				{
 					ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
