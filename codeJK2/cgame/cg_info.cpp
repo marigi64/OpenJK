@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../game/objectives.h"
 #include "strip_objectives.h"
 
-static const int missionYpos = 79;
+static int missionYpos = 79;
 
 const char *showLoadPowersName[] =
 {
@@ -193,6 +193,8 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
 		obj_graphics[3] = qtrue;
 	}
+	if (obj_graphics[1] && obj_graphics[2] && obj_graphics[3])
+		missionYpos = 79 - 24; //crappy hack to fix bug on kejim_base
 }
 
 /*
