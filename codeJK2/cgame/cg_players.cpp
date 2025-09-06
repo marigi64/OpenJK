@@ -4552,8 +4552,13 @@ Ghoul2 Insert End
 						vec3_t	spot;
 						VectorCopy( trace.endpos, spot );
 						spot[2] += 4;
-						G_PlayEffect( "saber/boil", spot );
-						cgi_S_StartSound ( spot, -1, CHAN_AUTO, cgi_S_RegisterSound( "sound/weapons/saber/hitwater.wav" ) );
+						static int lastSaberBoilTime = 0;
+						if (cg.time - lastSaberBoilTime >= 100)
+						{
+							lastSaberBoilTime = cg.time;
+							G_PlayEffect("saber/boil", spot);
+							cgi_S_StartSound(spot, -1, CHAN_AUTO, cgi_S_RegisterSound("sound/weapons/saber/hitwater.wav"));
+						}
 					}
 					//cent->gent->client->ps.saberEventFlags |= SEF_INWATER;
 					//don't do other trace
@@ -4561,7 +4566,12 @@ Ghoul2 Insert End
 				}
 				else
 				{
-					theFxScheduler.PlayEffect( "spark", trace.endpos, trace.plane.normal );
+					static int lastSaberSparkTime = 0;
+					if (cg.time - lastSaberSparkTime >= 16)
+					{
+						lastSaberSparkTime = cg.time;
+						theFxScheduler.PlayEffect("spark", trace.endpos, trace.plane.normal);
+					}
 					// All I need is a bool to mark whether I have a previous point to work with.
 					//....come up with something better..
 					if ( client->saberTrail.haveOldPos[i] )
