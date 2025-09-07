@@ -247,6 +247,8 @@ typedef struct {
 
 	int			screenshotFormat;
 
+	float		widthRatioCoef;
+
 } displayContextDef_t;
 
 void UI_InitMemory( void );

@@ -1129,8 +1129,8 @@ const void *RB_RotatePic ( const void *data )
 	float c = cosf( angle );
 
 	matrix3_t m = {
-		{ c, s, 0.0f },
-		{ -s, c, 0.0f },
+		{ c * cmd->ratio, s, 0.0f },
+		{ -s * cmd->ratio, c, 0.0f },
 		{ cmd->x + cmd->w, cmd->y, 1.0f }
 	};
 
@@ -1220,8 +1220,8 @@ const void *RB_RotatePic2 ( const void *data )
 		float c = cosf( angle );
 
 		matrix3_t m = {
-			{ c, s, 0.0f },
-			{ -s, c, 0.0f },
+			{ c * cmd->ratio, s, 0.0f },
+			{ -s * cmd->ratio, c, 0.0f },
 			{ cmd->x, cmd->y, 1.0f }
 		};
 

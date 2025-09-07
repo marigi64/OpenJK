@@ -64,7 +64,7 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 
 	cgi_SP_GetStringText( PACKAGE_OBJECTIVES<<8|objectIndex , finalText, sizeof(finalText) );
 
-	pixelLen = cgi_R_Font_StrLenPixels(finalText, cgs.media.qhFontMedium, 1.0f);
+	pixelLen = cgi_R_Font_StrLenPixels(finalText, cgs.media.qhFontMedium, 1.0f, cgs.widthRatioCoef);
 
 	str = finalText;
 
@@ -90,7 +90,7 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 			y += 32 + 4;
 		}
 		//CG_DrawProportionalString(108, y,str, CG_SMALLFONT, colorTable[color] );
-		cgi_R_Font_DrawString (108, y, str, colorTable[color], cgs.media.qhFontMedium, -1, 1.0f);
+		cgi_R_Font_DrawString (108, y, str, colorTable[color], cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef);
 		++missionYcnt;
 	}
 	// Text is too long, break into lines.
@@ -105,7 +105,7 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 		while( *str )
 		{
 			holdText2[0] = *str;
-			pixelLen += cgi_R_Font_StrLenPixels(holdText2, cgs.media.qhFontMedium, 1.0f);
+			pixelLen += cgi_R_Font_StrLenPixels(holdText2, cgs.media.qhFontMedium, 1.0f, cgs.widthRatioCoef);
 
 			pixelLen += 2; // For kerning
 			++charLen;
@@ -132,7 +132,7 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 
 				y = missionYpos + (iYPixelsPerLine * missionYcnt);
 
-				CG_DrawProportionalString(108, y, holdText, CG_SMALLFONT, colorTable[color] );
+				CG_DrawProportionalString(108, y, holdText, CG_SMALLFONT, colorTable[color], cgs.widthRatioCoef );
 				++missionYcnt;
 			}
 			else if (*(str+1) == '\0')
@@ -142,7 +142,7 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 				y = missionYpos + (iYPixelsPerLine * missionYcnt);
 
 				Q_strncpyz( holdText, strBegin, charLen);
-				CG_DrawProportionalString(108, y, holdText, CG_SMALLFONT, colorTable[color] );
+				CG_DrawProportionalString(108, y, holdText, CG_SMALLFONT, colorTable[color], cgs.widthRatioCoef );
 				++missionYcnt;
 				break;
 			}
@@ -157,14 +157,14 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 	{
 		y = missionYpos + (iYPixelsPerLine * missionYcnt);
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode");
-		CG_DrawPic( 320 - (128/2), y+8, 128, 32, graphic );
+		CG_DrawPic( 320 - (128/2) * cgs.widthRatioCoef, y+8, 128 * cgs.widthRatioCoef, 32, graphic );
 		obj_graphics[0] = qtrue;
 	}
 	else if (objectIndex == KEJIM_POST_OBJ3)
 	{
 		y = missionYpos + (iYPixelsPerLine * missionYcnt);
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode_red");
-		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
+		CG_DrawPic( 320 - (32/2) * cgs.widthRatioCoef, y+8, 32 * cgs.widthRatioCoef, 32, graphic );
 		obj_graphics[1] = qtrue;
 	}
 	else if (objectIndex == KEJIM_POST_OBJ4)
@@ -175,7 +175,7 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 			y += 32 + 4;
 		}
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode_green");
-		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
+		CG_DrawPic( 320 - (32/2) * cgs.widthRatioCoef, y+8, 32 * cgs.widthRatioCoef, 32, graphic );
 		obj_graphics[2] = qtrue;
 	}
 	else if (objectIndex == KEJIM_POST_OBJ5)
@@ -190,7 +190,7 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 			y += 32 + 4;
 		}
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode_blue");
-		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
+		CG_DrawPic( 320 - (32/2) * cgs.widthRatioCoef, y+8, 32 * cgs.widthRatioCoef, 32, graphic );
 		obj_graphics[3] = qtrue;
 	}
 	if (obj_graphics[1] && obj_graphics[2] && obj_graphics[3])
@@ -213,7 +213,7 @@ void MissionInformation_Draw( centity_t *cent )
 	// Frame
 	char text[1024]={0};
 	cgi_SP_GetStringTextString( "INGAME_OBJECTIVES", text, sizeof(text) );
-	cgi_R_Font_DrawString (96, missionYpos-23, text, colorTable[CT_WHITE], cgs.media.qhFontMedium, -1, 1.0f);
+	cgi_R_Font_DrawString (96, missionYpos-23, text, colorTable[CT_WHITE], cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef);
 
 	int missionYcnt = 0;
 
@@ -244,10 +244,10 @@ void MissionInformation_Draw( centity_t *cent )
 			}
 
 			//	OBJECTIVE_STAT_PENDING
-			CG_DrawPic( 88,   totalY,   16,  16, cgs.media.messageObjCircle);	// Circle in front
+			CG_DrawPic( 88 + (16 - (16 * cgs.widthRatioCoef) ),   totalY,   16 * cgs.widthRatioCoef,  16, cgs.media.messageObjCircle);	// Circle in front
 			if (cent->gent->client->sess.mission_objectives[i].status == OBJECTIVE_STAT_SUCCEEDED)
 			{
-				CG_DrawPic( 88,   totalY,   16,  16, cgs.media.messageLitOn);	// Center Dot
+				CG_DrawPic( 88 + (16 - (16 * cgs.widthRatioCoef) ),   totalY,   16 * cgs.widthRatioCoef,  16, cgs.media.messageLitOn);	// Center Dot
 			}
 			MissionPrint_Line(CT_BLUE3, i, missionYcnt );
 		}
@@ -257,7 +257,7 @@ void MissionInformation_Draw( centity_t *cent )
 	{
 		cgi_SP_GetStringTextString( "INGAME_OBJNONE", text, sizeof(text) );
 //		CG_DrawProportionalString(108, missionYpos, text, CG_SMALLFONT, colorTable[CT_LTBLUE1] );
-		cgi_R_Font_DrawString (108, missionYpos, text, colorTable[CT_LTBLUE1], cgs.media.qhFontMedium, -1, 1.0f);
+		cgi_R_Font_DrawString (108, missionYpos, text, colorTable[CT_LTBLUE1], cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef);
 	}
 }
 
@@ -362,18 +362,20 @@ static void CG_LoadBar(void)
 	const int barheight = tickheight + tickpady*2, bartop = 480-barheight;
 	const int capleft = barleft+tickpadx, tickleft = capleft+capwidth, ticktop = bartop+tickpady;
 
+	float xOffset = ((SCREEN_WIDTH - (SCREEN_WIDTH * cgs.widthRatioCoef)) / 2); //80
+
 	cgi_R_SetColor( colorTable[CT_WHITE]);
 	// Draw background
-	CG_DrawPic(barleft, bartop, barwidth, barheight, cgs.media.levelLoad);
+	CG_DrawPic(barleft * cgs.widthRatioCoef + xOffset, bartop, barwidth * cgs.widthRatioCoef, barheight, cgs.media.levelLoad);
 
 	// Draw left cap (backwards)
-	CG_DrawPic(tickleft, ticktop, -capwidth, tickheight, cgs.media.loadTickCap);
+	CG_DrawPic(tickleft * cgs.widthRatioCoef + xOffset, ticktop, -capwidth * cgs.widthRatioCoef, tickheight, cgs.media.loadTickCap);
 
 	// Draw bar
-	CG_DrawPic(tickleft, ticktop, tickwidth*cg.loadLCARSStage, tickheight, cgs.media.loadTick);
+	CG_DrawPic(tickleft * cgs.widthRatioCoef + xOffset, ticktop, (tickwidth*cg.loadLCARSStage) * cgs.widthRatioCoef, tickheight, cgs.media.loadTick);
 
 	// Draw right cap
-	CG_DrawPic(tickleft+tickwidth*cg.loadLCARSStage, ticktop, capwidth, tickheight, cgs.media.loadTickCap);
+	CG_DrawPic((tickleft + tickwidth * cg.loadLCARSStage) * cgs.widthRatioCoef + xOffset, ticktop, capwidth * cgs.widthRatioCoef, tickheight, cgs.media.loadTickCap);
 }
 
 /*
@@ -416,16 +418,29 @@ void CG_DrawInformation( void ) {
 		// put up the pre-defined levelshot for this map...
 		//
 		cgi_R_SetColor( NULL );
-		CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot );
+#ifdef JK2_MODE
+		float xOffset = ((SCREEN_WIDTH - (SCREEN_WIDTH * cgs.widthRatioCoef)) / 2);
+		if (levelshot == cgi_R_RegisterShaderNoMip("menu/art/unknownmap"))
+		{
+			CG_FillRect(0, 0, xOffset, SCREEN_HEIGHT, colorTable[CT_BLACK]);
+			CG_FillRect(SCREEN_WIDTH - xOffset, 0, xOffset, SCREEN_HEIGHT, colorTable[CT_BLACK]);
+
+			CG_DrawPic(xOffset, 0, SCREEN_WIDTH * cgs.widthRatioCoef, SCREEN_HEIGHT, levelshot);
+		}
+		else
+#endif
+			CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot );
 	}
 
 	if ( g_eSavedGameJustLoaded != eFULL && !strcmp(s,"kejim_post") )//special case for first map!
 	{
+		CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, colorTable[CT_BLACK]);
+
 		char	text[1024]={0};
 		cgi_SP_GetStringTextString( "INGAME_ALONGTIME", text, sizeof(text) );
 
-		int w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontMedium, 1.0f);
-		cgi_R_Font_DrawString((320)-(w/2), 140, text,  colorTable[CT_ICON_BLUE], cgs.media.qhFontMedium, -1, 1.0f);
+		int w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontMedium, 1.0f, cgs.widthRatioCoef);
+		cgi_R_Font_DrawString((320)-(w/2), 140, text,  colorTable[CT_ICON_BLUE], cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef);
 	}
 	else
 	if (cg_missionstatusscreen.integer )
@@ -442,7 +457,7 @@ void CG_DrawInformation( void ) {
 		// print the current item being loaded
 
 #ifndef NDEBUG
-		cgi_R_Font_DrawString( 48, 398, va("LOADING ... %s",cg.infoScreenText),colorTable[CT_LTGOLD1], cgs.media.qhFontSmall, -1, 1.0f );
+		cgi_R_Font_DrawString( 48, 398, va("LOADING ... %s",cg.infoScreenText),colorTable[CT_LTGOLD1], cgs.media.qhFontSmall, -1, 1.0f, cgs.widthRatioCoef );
 #endif
 	}
 
@@ -458,11 +473,11 @@ void CG_DrawInformation( void ) {
 		{
 			char text[1024]={0};
 			cgi_SP_GetStringTextString( s+1, text, sizeof(text) );
-			cgi_R_Font_DrawString( 15, y, va("\"%s\"",text),colorTable[CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f );
+			cgi_R_Font_DrawString( 15, y, va("\"%s\"",text),colorTable[CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef );
 		}
 		else
 		{
-			cgi_R_Font_DrawString( 15, y, va("\"%s\"",s),colorTable[CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f );
+			cgi_R_Font_DrawString( 15, y, va("\"%s\"",s),colorTable[CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef );
 		}
 		y += 20;
 	}

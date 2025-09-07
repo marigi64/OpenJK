@@ -5611,6 +5611,40 @@ void Controls_GetConfig( void )
 }
 
 
+typedef struct {
+	const char* name;
+	int rectX, rectY, rectW, rectH;
+	qboolean checkRect;
+} specialItemSpec_t;
+
+static qboolean Item_MatchesSpec(const itemDef_t* item, const specialItemSpec_t* spec) {
+	if (!item || !spec) return qfalse;
+	if (spec->name) {
+		if (!item->window.name || Q_stricmp(item->window.name, spec->name) != 0)
+			return qfalse;
+	}
+	if (spec->checkRect) {
+		if (item->window.rectClient.x != spec->rectX ||
+			item->window.rectClient.y != spec->rectY ||
+			item->window.rectClient.w != spec->rectW ||
+			item->window.rectClient.h != spec->rectH) {
+			return qfalse;
+		}
+	}
+	return qtrue;
+}
+
+static const specialItemSpec_t g_specialItems[] =
+{
+	{ "saberglow", 30, 0, 90, 480, qtrue },
+	{ "starwars", 143, 12, 470, 93, qtrue },
+	{ "saberhalo", -425, - 185, 1000, 1000, qtrue },
+	{ "logomodel", -123, 48, 400, 400, qtrue },
+	{ "saberhalo2", -225, 15, 600, 600, qtrue },
+};
+static const int g_specialItemsCount = sizeof(g_specialItems) / sizeof(g_specialItems[0]);
+
+
 /*
 ===============
 Item_SetScreenCoords
@@ -5634,6 +5668,22 @@ void Item_SetScreenCoords(itemDef_t *item, float x, float y)
 	item->window.rect.y = y + item->window.rectClient.y;
 	item->window.rect.w = item->window.rectClient.w;
 	item->window.rect.h = item->window.rectClient.h;
+
+
+	for (int si = 0; si < g_specialItemsCount; ++si)
+	{
+		if (Item_MatchesSpec(item, &g_specialItems[si]))
+		{
+			float origW = item->window.rectClient.w;
+			float newW = origW * uiInfo.uiDC.widthRatioCoef;
+
+			item->window.rect.w = newW;
+			item->window.rect.x += (origW - newW) / 2;
+
+			break;
+		}
+	}
+
 
 	// force the text rects to recompute
 	item->textRect.w = 0;

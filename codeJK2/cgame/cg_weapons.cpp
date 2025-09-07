@@ -1354,8 +1354,8 @@ void CG_DrawIconBackground(void)
 			xAdd = (int) 8*cg.iconHUDPercent;
 
 			height = (int) (60.0f*cg.iconHUDPercent);
-			CG_DrawPic( x2+60, y2+30, 460, -height, background);	// Top half
-			CG_DrawPic( x2+60, y2+30-2,460, height, background);	// Bottom half
+			CG_DrawPic( (x2+60) * cgs.widthRatioCoef, y2+30, SCREEN_WIDTH - (2 * ((x2 + 60) * cgs.widthRatioCoef)), -height, background);	// Top half
+			CG_DrawPic( (x2+60) * cgs.widthRatioCoef, y2+30-2, SCREEN_WIDTH - (2 * ((x2 + 60) * cgs.widthRatioCoef)), height, background);	// Bottom half
 
 		}
 		else
@@ -1364,8 +1364,8 @@ void CG_DrawIconBackground(void)
 		}
 
 		cgi_R_SetColor( colorTable[CT_WHITE] );
-		CG_DrawPic( prongLeftX+xAdd, y2-10, 40, 80, cgs.media.weaponProngsOff);
-		CG_DrawPic( prongRightX-xAdd, y2-10, -40, 80, cgs.media.weaponProngsOff);
+		CG_DrawPic((prongLeftX + xAdd) * cgs.widthRatioCoef, y2 - 10, 40 * cgs.widthRatioCoef, 80, cgs.media.weaponProngsOff);
+		CG_DrawPic(SCREEN_WIDTH - (SCREEN_WIDTH - (prongRightX - xAdd)) * cgs.widthRatioCoef, y2 - 10, -40 * cgs.widthRatioCoef, 80, cgs.media.weaponProngsOff);
 
 		return;
 	}
@@ -1396,8 +1396,8 @@ void CG_DrawIconBackground(void)
 
 	cgi_R_SetColor( colorTable[CT_WHITE] );
 	height = (int) (60.0f*cg.iconHUDPercent);
-	CG_DrawPic( x2+60, y2+30, 460, -height, background);	// Top half
-	CG_DrawPic( x2+60, y2+30-2,460, height, background);	// Bottom half
+	CG_DrawPic( (x2+60) * cgs.widthRatioCoef, y2+30, SCREEN_WIDTH - (2 * ((x2 + 60) * cgs.widthRatioCoef)), -height, background);	// Top half
+	CG_DrawPic( (x2+60) * cgs.widthRatioCoef, y2+30-2, SCREEN_WIDTH - (2 * ((x2 + 60) * cgs.widthRatioCoef)), height, background);	// Bottom half
 
 
 	// And now for the prongs
@@ -1421,8 +1421,8 @@ void CG_DrawIconBackground(void)
 	// Side Prongs
 	cgi_R_SetColor( colorTable[CT_WHITE]);
 	xAdd = (int) 8*cg.iconHUDPercent;
-	CG_DrawPic( prongLeftX+xAdd, y2-10, 40, 80, background);
-	CG_DrawPic( prongRightX-xAdd, y2-10, -40, 80, background);
+	CG_DrawPic( (prongLeftX + xAdd) * cgs.widthRatioCoef, y2-10, 40 * cgs.widthRatioCoef, 80, background);
+	CG_DrawPic( SCREEN_WIDTH - (SCREEN_WIDTH -(prongRightX-xAdd)) * cgs.widthRatioCoef, y2-10, -40 * cgs.widthRatioCoef, 80, background);
 }
 
 int cgi_UI_GetItemText(char *menuFile,char *itemName, char *text);
@@ -1534,7 +1534,7 @@ void CG_DrawDataPadWeaponSelect( void )
 	// Left side ICONS
 	cgi_R_SetColor( calcColor);
 	// Work backwards from current icon
-	holdX = x - ((bigIconSize/2) + pad + smallIconSize);
+	holdX = x - ((bigIconSize/2) + pad + smallIconSize) * cgs.widthRatioCoef;
 	//height = smallIconSize * cg.iconHUDPercent;
 
 	for (iconCnt=1;iconCnt<(sideLeftIconCnt+1);i--)
@@ -1559,14 +1559,14 @@ void CG_DrawDataPadWeaponSelect( void )
 
 			if (!CG_WeaponCheck(i))
 			{
-				CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, weaponInfo->weaponIconNoAmmo );
+				CG_DrawPic( holdX, y+10, smallIconSize * cgs.widthRatioCoef, smallIconSize, weaponInfo->weaponIconNoAmmo );
 			}
 			else
 			{
-				CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, weaponInfo->weaponIcon );
+				CG_DrawPic( holdX, y+10, smallIconSize * cgs.widthRatioCoef, smallIconSize, weaponInfo->weaponIcon );
 			}
 
-			holdX -= (smallIconSize+pad);
+			holdX -= (smallIconSize+pad) * cgs.widthRatioCoef;
 		}
 	}
 
@@ -1585,11 +1585,11 @@ void CG_DrawDataPadWeaponSelect( void )
 
 		if (!CG_WeaponCheck(cg.DataPadWeaponSelect))
 		{
-			CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize, bigIconSize, weaponInfo->weaponIconNoAmmo );
+			CG_DrawPic( x-(bigIconSize/2 * cgs.widthRatioCoef), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize * cgs.widthRatioCoef, bigIconSize, weaponInfo->weaponIconNoAmmo );
 		}
 		else
 		{
-			CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize, bigIconSize, weaponInfo->weaponIcon );
+			CG_DrawPic( x-(bigIconSize/2 * cgs.widthRatioCoef), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize* cgs.widthRatioCoef, bigIconSize, weaponInfo->weaponIcon );
 		}
 	}
 
@@ -1602,7 +1602,7 @@ void CG_DrawDataPadWeaponSelect( void )
 	// Right side ICONS
 	// Work forwards from current icon
 	cgi_R_SetColor( calcColor);
-	holdX = x + (bigIconSize/2) + pad;
+	holdX = x + ((bigIconSize/2) + pad) * cgs.widthRatioCoef;
 	//height = smallIconSize * cg.iconHUDPercent;
 	for (iconCnt=1;iconCnt<(sideRightIconCnt+1);i++)
 	{
@@ -1626,15 +1626,15 @@ void CG_DrawDataPadWeaponSelect( void )
 			// No ammo for this weapon?
 			if (!CG_WeaponCheck(i))
 			{
-				CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, weaponInfo->weaponIconNoAmmo );
+				CG_DrawPic( holdX, y+10, smallIconSize * cgs.widthRatioCoef, smallIconSize, weaponInfo->weaponIconNoAmmo );
 			}
 			else
 			{
-				CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, weaponInfo->weaponIcon );
+				CG_DrawPic( holdX, y+10, smallIconSize * cgs.widthRatioCoef, smallIconSize, weaponInfo->weaponIcon );
 			}
 
 
-			holdX += (smallIconSize+pad);
+			holdX += (smallIconSize+pad) * cgs.widthRatioCoef;
 		}
 	}
 
@@ -1859,7 +1859,25 @@ void CG_DrawWeaponSelect( void )
 		return;
 	}
 
-	sideMax = 3;	// Max number of icons on the side
+	//sideMax = 3;	// Max number of icons on the side
+	if (cgs.widthRatioCoef >= 0.8f) //4:3 and 16:10
+	{
+		if (cg_hudFiles.integer != 1) //tested these numbers in 1280x1024
+			sideMax = 3;
+		else
+			sideMax = 4;
+	}
+	else if (cgs.widthRatioCoef >= 0.625f) //tested these numbers in 1600x900
+	{
+		if (cg_hudFiles.integer != 1)
+			sideMax = 5;
+		else
+			sideMax = 6;
+	}
+	else
+	{ //assuming anything lower than 0.625 is ultra widescreen
+		sideMax = 7; //max that's properly centered
+	}
 
 	// Calculate how many icons will appear to either side of the center one
 	holdCount = count - 1;	// -1 for the center icon
@@ -1900,7 +1918,7 @@ void CG_DrawWeaponSelect( void )
 	// Left side ICONS
 	cgi_R_SetColor( calcColor);
 	// Work backwards from current icon
-	holdX = x - ((bigIconSize/2) + pad + smallIconSize);
+	holdX = x - ((bigIconSize/2) + pad + smallIconSize) * cgs.widthRatioCoef;
 	//height = smallIconSize * cg.iconHUDPercent;
 
 	for (iconCnt=1;iconCnt<(sideLeftIconCnt+1);i--)
@@ -1925,14 +1943,14 @@ void CG_DrawWeaponSelect( void )
 
 			if (!CG_WeaponCheck(i))
 			{
-				CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, weaponInfo->weaponIconNoAmmo );
+				CG_DrawPic( holdX, y+10, smallIconSize * cgs.widthRatioCoef, smallIconSize, weaponInfo->weaponIconNoAmmo );
 			}
 			else
 			{
-				CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, weaponInfo->weaponIcon );
+				CG_DrawPic( holdX, y+10, smallIconSize* cgs.widthRatioCoef, smallIconSize, weaponInfo->weaponIcon );
 			}
 
-			holdX -= (smallIconSize+pad);
+			holdX -= (smallIconSize+pad) * cgs.widthRatioCoef;
 		}
 	}
 
@@ -1947,11 +1965,11 @@ void CG_DrawWeaponSelect( void )
 
 		if (!CG_WeaponCheck(cg.weaponSelect))
 		{
-			CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize, bigIconSize, weaponInfo->weaponIconNoAmmo );
+			CG_DrawPic( x-(bigIconSize/2 * cgs.widthRatioCoef), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize * cgs.widthRatioCoef, bigIconSize, weaponInfo->weaponIconNoAmmo );
 		}
 		else
 		{
-			CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize, bigIconSize, weaponInfo->weaponIcon );
+			CG_DrawPic( x-(bigIconSize/2 * cgs.widthRatioCoef), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize* cgs.widthRatioCoef, bigIconSize, weaponInfo->weaponIcon );
 		}
 	}
 
@@ -1964,7 +1982,7 @@ void CG_DrawWeaponSelect( void )
 	// Right side ICONS
 	// Work forwards from current icon
 	cgi_R_SetColor( calcColor);
-	holdX = x + (bigIconSize/2) + pad;
+	holdX = x + ((bigIconSize/2) + pad) * cgs.widthRatioCoef;
 	//height = smallIconSize * cg.iconHUDPercent;
 	for (iconCnt=1;iconCnt<(sideRightIconCnt+1);i++)
 	{
@@ -1988,15 +2006,15 @@ void CG_DrawWeaponSelect( void )
 			// No ammo for this weapon?
 			if (!CG_WeaponCheck(i))
 			{
-				CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, weaponInfo->weaponIconNoAmmo );
+				CG_DrawPic( holdX, y+10, smallIconSize * cgs.widthRatioCoef, smallIconSize, weaponInfo->weaponIconNoAmmo );
 			}
 			else
 			{
-				CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, weaponInfo->weaponIcon );
+				CG_DrawPic( holdX, y+10, smallIconSize * cgs.widthRatioCoef, smallIconSize, weaponInfo->weaponIcon );
 			}
 
 
-			holdX += (smallIconSize+pad);
+			holdX += (smallIconSize+pad) * cgs.widthRatioCoef;
 		}
 	}
 
@@ -2009,9 +2027,9 @@ void CG_DrawWeaponSelect( void )
 
 		if ( cgi_SP_GetStringTextString( va("INGAME_%s",item->classname), text, sizeof( text )))
 		{
-			int w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 1.0f);
+			int w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 1.0f, cgs.widthRatioCoef);
 			int x = ( SCREEN_WIDTH - w ) / 2;
-			cgi_R_Font_DrawString(x, (SCREEN_HEIGHT - 24), text, textColor, cgs.media.qhFontSmall, -1, 1.0f);
+			cgi_R_Font_DrawString(x, (SCREEN_HEIGHT - 24), text, textColor, cgs.media.qhFontSmall, -1, 1.0f, cgs.widthRatioCoef);
 		}
 	}
 

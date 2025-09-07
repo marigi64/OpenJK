@@ -615,7 +615,7 @@ void Con_DrawNotify (void)
 	if (re.Language_IsAsian())
 	{
 		fFontScale = con.charWidth * 10.0f /
-			re.Font_StrLenPixels("aaaaaaaaaa", iFontIndex, 1.0f);
+			re.Font_StrLenPixels("aaaaaaaaaa", iFontIndex, 1.0f, 1.0f);
 		fFontScale *= con.yadjust;
 		iPixelHeightToAdvance = 2+(1.3/con.yadjust) * re.Font_HeightPixels(iFontIndex, fFontScale);
 	}
@@ -660,7 +660,7 @@ void Con_DrawNotify (void)
 			// and print...
 			//
 			re.Font_DrawString(con.xadjust * (con.xadjust + con.charWidth), con.yadjust * v, sTemp,
-				g_color_table[currentColor], iFontIndex, -1, fFontScale);
+				g_color_table[currentColor], iFontIndex, -1, fFontScale, 1.0f);
 
 			v +=  iPixelHeightToAdvance;
 		}
@@ -775,7 +775,7 @@ void Con_DrawSolidConsole( float frac )
 	if (re.Language_IsAsian())
 	{
 		fFontScale = con.charWidth * 10.0f /
-			re.Font_StrLenPixels("aaaaaaaaaa", iFontIndex, 1.0f);
+			re.Font_StrLenPixels("aaaaaaaaaa", iFontIndex, 1.0f, 1.0f);
 		fFontScale *= con.yadjust;
 		iPixelHeightToAdvance = 2+(1.3/con.yadjust) * re.Font_HeightPixels(iFontIndex, fFontScale);
 	}
@@ -815,7 +815,7 @@ void Con_DrawSolidConsole( float frac )
 			// and print...
 			//
 			re.Font_DrawString(con.xadjust*(con.xadjust + con.charWidth), con.yadjust * y, sTemp, g_color_table[currentColor],
-				iFontIndex, -1, fFontScale);
+				iFontIndex, -1, fFontScale, 1.0f);
 		}
 		else
 		{

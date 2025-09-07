@@ -185,6 +185,8 @@ cvar_t	*com_buildScript;
 cvar_t	*r_environmentMapping;
 cvar_t *r_screenshotJpegQuality;
 
+cvar_t	*cl_ratioFix;
+
 #if !defined(__APPLE__)
 PFNGLSTENCILOPSEPARATEPROC qglStencilOpSeparate;
 #endif
@@ -1664,6 +1666,8 @@ void R_Register( void )
 	r_noportals = ri.Cvar_Get ("r_noportals", "0", CVAR_CHEAT);
 	r_shadows = ri.Cvar_Get( "cg_shadows", "1", 0 );
 	r_shadowRange = ri.Cvar_Get( "r_shadowRange", "1000", CVAR_ARCHIVE_ND );
+
+	cl_ratioFix = ri.Cvar_Get("cl_ratioFix", "1", CVAR_ARCHIVE);
 
 /*
 Ghoul2 Insert Start

@@ -1597,7 +1597,7 @@ CFontInfo *GetFont(int index)
 }
 
 
-int RE_Font_StrLenPixels(const char *psText, const int iFontHandle, const float fScaleIn)
+int RE_Font_StrLenPixels(const char *psText, const int iFontHandle, const float fScaleIn, const float fAspectCorrection)
 {
 	float fScale = fScaleIn;
 #ifdef JK2_MODE
@@ -1640,7 +1640,7 @@ int RE_Font_StrLenPixels(const char *psText, const int iFontHandle, const float 
 	}
 
 	// using ceil because we need to make sure that all the text is contained within the integer pixel width we're returning
-	return (int)ceilf(fMaxWidth);
+	return (int)ceilf(fMaxWidth * fAspectCorrection);
 #else
 	float		fMaxWidth = 0.0f;
 	float		fThisWidth = 0.0f;
@@ -1757,7 +1757,7 @@ int RE_Font_HeightPixels(const int iFontHandle, const float fScaleIn)
 
 // iMaxPixelWidth is -1 for "all of string", else pixel display count...
 //
-void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, const int iFontHandleIn, int iMaxPixelWidth, const float fScaleIn)
+void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, const int iFontHandleIn, int iMaxPixelWidth, const float fScaleIn, const float fAspectCorrection)
 {
 	int iFontHandle = iFontHandleIn;
 	float fScale = fScaleIn;
@@ -1822,7 +1822,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 		const vec4_t v4DKGREY2 = {0.15f, 0.15f, 0.15f, rgba?rgba[3]:1.0f};
 
 		gbInShadow = qtrue;
-		RE_Font_DrawString(ox + offset, oy + offset, psText, v4DKGREY2, iFontHandle & SET_MASK, iMaxPixelWidth, fScale);
+		RE_Font_DrawString(ox + offset, oy + offset, psText, v4DKGREY2, iFontHandle & SET_MASK, iMaxPixelWidth, fScale, fAspectCorrection);
 		gbInShadow = qfalse;
 	}
 
@@ -1868,7 +1868,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 			break;
 		case 32:						// Space
 			pLetter = curfont->GetLetter(' ');
-			fx += curfont->mbRoundCalcs ? Round(pLetter->horizAdvance * fScale) : pLetter->horizAdvance * fScale;
+			fx += curfont->mbRoundCalcs ? Round((pLetter->horizAdvance * fScale) * fAspectCorrection) : (pLetter->horizAdvance * fScale) * fAspectCorrection;
 			bNextTextWouldOverflow = (qboolean)(
 				iMaxPixelWidth != -1 &&
 				((fx - fox) > (float)iMaxPixelWidth));
@@ -1894,7 +1894,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 
 				RE_StretchPic(curfont->mbRoundCalcs ? fx + Round(pLetter->horizOffset * fThisScale) : fx + pLetter->horizOffset * fThisScale, // float x
 								(uiLetter > 255) ? fy - fAsianYAdjust : fy,	// float y
-								curfont->mbRoundCalcs ? Round(pLetter->width * fThisScale) : pLetter->width * fThisScale,	// float w
+								curfont->mbRoundCalcs ? Round((pLetter->width * fThisScale) * fAspectCorrection) : (pLetter->width * fThisScale) * fAspectCorrection,	// float w
 								curfont->mbRoundCalcs ? Round(pLetter->height * fThisScale) : pLetter->height * fThisScale, // float h
 								pLetter->s,						// float s1
 								pLetter->t,						// float t1
@@ -1904,7 +1904,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 								hShader							// qhandle_t hShader
 								);
 
-				fx += fAdvancePixels;
+				fx += fAdvancePixels * fAspectCorrection;
 			}
 			break;
 		}

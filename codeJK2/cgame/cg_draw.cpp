@@ -224,11 +224,14 @@ int cgi_UI_GetMenuInfo(char *menuFile,int *x,int *y);
 CG_DrawHUDRightFrame1
 ================
 */
-static void CG_DrawHUDRightFrame1(int x,int y)
+static void CG_DrawHUDRightFrame1(int x, int y, qboolean applyWidescreen)
 {
 	cgi_R_SetColor( colorTable[CT_WHITE] );
 	// Inner gray wire frame
-	CG_DrawPic(   x, y, 80, 80, cgs.media.HUDInnerRight );		//
+
+	float ratio = applyWidescreen ? cgs.widthRatioCoef : 1.0f;
+	
+	CG_DrawPic(SCREEN_WIDTH - (SCREEN_WIDTH - x) * ratio, y, 80 * ratio, 80, cgs.media.HUDInnerRight );		//
 }
 
 /*
@@ -239,7 +242,7 @@ CG_DrawHUDRightFrame2
 static void CG_DrawHUDRightFrame2(int x,int y)
 {
 	cgi_R_SetColor( colorTable[CT_WHITE] );
-	CG_DrawPic(   x, y, 80, 80, cgs.media.HUDRightFrame );		// Metal frame
+	CG_DrawPic(SCREEN_WIDTH - (SCREEN_WIDTH - x) * cgs.widthRatioCoef, y, 80 * cgs.widthRatioCoef, 80, cgs.media.HUDRightFrame );		// Metal frame
 }
 
 /*
@@ -247,9 +250,11 @@ static void CG_DrawHUDRightFrame2(int x,int y)
 CG_DrawMessageLit
 ================
 */
-static void CG_DrawMessageLit(centity_t *cent,int x,int y)
+static void CG_DrawMessageLit(centity_t *cent,int x,int y, qboolean applyWidescreen)
 {
 	cgi_R_SetColor(colorTable[CT_WHITE]);
+
+	float ratio = applyWidescreen ? cgs.widthRatioCoef : 1.0f;
 
 	if (cg.missionInfoFlashTime	> cg.time )
 	{
@@ -262,7 +267,7 @@ static void CG_DrawMessageLit(centity_t *cent,int x,int y)
 			}
 
 			cgi_R_SetColor(colorTable[CT_HUD_RED]);
-			CG_DrawPic( x + 33,y + 41, 16,16, cgs.media.messageLitOn);
+			CG_DrawPic(SCREEN_WIDTH - (SCREEN_WIDTH - (x + 33)) * ratio, y + 41, 16 * ratio, 16, cgs.media.messageLitOn);
 		}
 		else
 		{
@@ -271,7 +276,7 @@ static void CG_DrawMessageLit(centity_t *cent,int x,int y)
 	}
 
 	cgi_R_SetColor(colorTable[CT_WHITE]);
-	CG_DrawPic( x + 33,y + 41, 16,16, cgs.media.messageLitOff);
+	CG_DrawPic(SCREEN_WIDTH - (SCREEN_WIDTH - (x + 33)) * ratio, y + 41, 16 * ratio, 16, cgs.media.messageLitOff);
 
 }
 
@@ -280,7 +285,7 @@ static void CG_DrawMessageLit(centity_t *cent,int x,int y)
 CG_DrawForcePower
 ================
 */
-static void CG_DrawForcePower(centity_t *cent,int x,int y)
+static void CG_DrawForcePower(centity_t *cent,int x,int y, qboolean applyWidescreen)
 {
 	int			i;
 	vec4_t		calcColor;
@@ -326,9 +331,12 @@ static void CG_DrawForcePower(centity_t *cent,int x,int y)
 		}
 
 		cgi_R_SetColor( calcColor);
-		CG_DrawPic( x + forceTicPos[i].x,
+
+		float ratio = applyWidescreen ? cgs.widthRatioCoef : 1.0f;
+
+		CG_DrawPic(SCREEN_WIDTH - (SCREEN_WIDTH - (x + forceTicPos[i].x)) * ratio,
 			y + forceTicPos[i].y,
-			forceTicPos[i].width,
+			forceTicPos[i].width * ratio,
 			forceTicPos[i].height,
 			forceTicPos[i].tic );
 
@@ -341,7 +349,7 @@ static void CG_DrawForcePower(centity_t *cent,int x,int y)
 CG_DrawAmmo
 ================
 */
-static void CG_DrawAmmo(centity_t	*cent,int x,int y)
+static void CG_DrawAmmo(centity_t	*cent,int x,int y, qboolean applyWidescreen)
 {
 	playerState_t	*ps;
 	int			numColor_i;
@@ -364,6 +372,7 @@ static void CG_DrawAmmo(centity_t	*cent,int x,int y)
 	if ( cent->currentState.weapon == WP_SABER && cent->gent )
 	{
 		cgi_R_SetColor( colorTable[CT_WHITE] );
+		float ratio = applyWidescreen ? cgs.widthRatioCoef : 1.0f;
 
 		if ( !cg.saberAnimLevelPending && cent->gent->client )
 		{//uninitialized after a loadgame, cheat across and get it
@@ -374,14 +383,14 @@ static void CG_DrawAmmo(centity_t	*cent,int x,int y)
 		{
 		case 1://FORCE_LEVEL_1:
 		case 5://FORCE_LEVEL_5://Tavion
-			CG_DrawPic( x, y, 80, 40, cgs.media.HUDSaberStyleFast );
+			CG_DrawPic(SCREEN_WIDTH - (SCREEN_WIDTH - x) * ratio, y, 80 * ratio, 40, cgs.media.HUDSaberStyleFast );
 			break;
 		case 2://FORCE_LEVEL_2:
-			CG_DrawPic( x, y, 80, 40, cgs.media.HUDSaberStyleMed );
+			CG_DrawPic(SCREEN_WIDTH - (SCREEN_WIDTH - x) * ratio, y, 80 * ratio, 40, cgs.media.HUDSaberStyleMed );
 			break;
 		case 3://FORCE_LEVEL_3:
 		case 4://FORCE_LEVEL_4://Desann
-			CG_DrawPic( x, y, 80, 40, cgs.media.HUDSaberStyleStrong );
+			CG_DrawPic(SCREEN_WIDTH - (SCREEN_WIDTH - x) * ratio, y, 80 * ratio, 40, cgs.media.HUDSaberStyleStrong );
 			break;
 		}
 		return;
@@ -433,7 +442,10 @@ static void CG_DrawAmmo(centity_t	*cent,int x,int y)
 	}
 
 	cgi_R_SetColor( colorTable[numColor_i] );
-	CG_DrawNumField(x + 29, y + 26, 3, value, 6, 12, NUM_FONT_SMALL,qfalse);
+
+	float ratio = applyWidescreen ? cgs.widthRatioCoef : 1.0f;
+
+	CG_DrawNumField(SCREEN_WIDTH - (SCREEN_WIDTH - (x + 29)) * ratio, y + 26, 3, value, 6 * ratio, 12, NUM_FONT_SMALL,qfalse);
 
 	inc = (float) ammoData[weaponData[cent->currentState.weapon].ammoIndex].max / MAX_TICS;
 	value =ps->ammo[weaponData[cent->currentState.weapon].ammoIndex];
@@ -459,9 +471,9 @@ static void CG_DrawAmmo(centity_t	*cent,int x,int y)
 		}
 
 		cgi_R_SetColor( calcColor);
-		CG_DrawPic( x + ammoTicPos[i].x,
+		CG_DrawPic( SCREEN_WIDTH - (SCREEN_WIDTH - (x + ammoTicPos[i].x)) * ratio,
 			y + ammoTicPos[i].y,
-			ammoTicPos[i].width,
+			ammoTicPos[i].width * ratio,
 			ammoTicPos[i].height,
 			ammoTicPos[i].tic );
 
@@ -475,11 +487,14 @@ static void CG_DrawAmmo(centity_t	*cent,int x,int y)
 CG_DrawHUDLeftFrame1
 ================
 */
-static void CG_DrawHUDLeftFrame1(int x,int y)
+static void CG_DrawHUDLeftFrame1(int x,int y, qboolean applyWidescreen)
 {
 	// Inner gray wire frame
 	cgi_R_SetColor( colorTable[CT_WHITE] );
-	CG_DrawPic(   x, y, 80, 80, cgs.media.HUDInnerLeft );
+
+	float ratio = applyWidescreen ? cgs.widthRatioCoef : 1.0f;
+
+	CG_DrawPic(   x, y, 80 * ratio, 80, cgs.media.HUDInnerLeft );
 }
 
 /*
@@ -491,14 +506,14 @@ static void CG_DrawHUDLeftFrame2(int x,int y)
 {
 	// Inner gray wire frame
 	cgi_R_SetColor( colorTable[CT_WHITE] );
-	CG_DrawPic(   x, y, 80, 80, cgs.media.HUDLeftFrame );		// Metal frame
+	CG_DrawPic(   x, y, 80 * cgs.widthRatioCoef, 80, cgs.media.HUDLeftFrame );		// Metal frame
 }
 /*
 ================
 CG_DrawHealth
 ================
 */
-static void CG_DrawHealth(int x,int y)
+static void CG_DrawHealth(int x,int y, qboolean applyWidescreen)
 {
 	vec4_t calcColor;
 	float	healthPercent;
@@ -512,17 +527,20 @@ static void CG_DrawHealth(int x,int y)
 	calcColor[1] *= healthPercent;
 	calcColor[2] *= healthPercent;
 	cgi_R_SetColor( calcColor);
-	CG_DrawPic(   x, y, 80, 80, cgs.media.HUDHealth );
+
+	float ratio = applyWidescreen ? cgs.widthRatioCoef : 1.0f;
+
+	CG_DrawPic(   x, y, 80 * ratio, 80, cgs.media.HUDHealth );
 
 	// Draw the ticks
 	if (cg.HUDHealthFlag)
 	{
 		cgi_R_SetColor( colorTable[CT_HUD_RED] );
-		CG_DrawPic(   x, y, 80, 80, cgs.media.HUDHealthTic );
+		CG_DrawPic(   x, y, 80 * ratio, 80, cgs.media.HUDHealthTic );
 	}
 
 	cgi_R_SetColor( colorTable[CT_HUD_RED] );
-	CG_DrawNumField (x + 16, y + 40, 3, ps->stats[STAT_HEALTH], 6, 12,
+	CG_DrawNumField ((x + 16) * ratio, y + 40, 3, ps->stats[STAT_HEALTH], 6 * ratio, 12,
 		NUM_FONT_SMALL,qtrue);
 
 }
@@ -532,7 +550,7 @@ static void CG_DrawHealth(int x,int y)
 CG_DrawArmor
 ================
 */
-static void CG_DrawArmor(int x,int y)
+static void CG_DrawArmor(int x,int y, qboolean applyWidescreen)
 {
 	vec4_t calcColor;
 	float	armorPercent,hold;
@@ -553,7 +571,10 @@ static void CG_DrawArmor(int x,int y)
 	calcColor[1] *= armorPercent;
 	calcColor[2] *= armorPercent;
 	cgi_R_SetColor( calcColor);
-	CG_DrawPic(   x, y, 80, 80, cgs.media.HUDArmor1 );
+
+	float ratio = applyWidescreen ? cgs.widthRatioCoef : 1.0f;
+
+	CG_DrawPic(   x, y, 80 * ratio, 80, cgs.media.HUDArmor1 );
 
 	// Inner Armor circular
 	if (armorPercent>0)
@@ -569,7 +590,7 @@ static void CG_DrawArmor(int x,int y)
 	calcColor[1] *= armorPercent;
 	calcColor[2] *= armorPercent;
 	cgi_R_SetColor( calcColor);
-	CG_DrawPic(   x, y, 80, 80, cgs.media.HUDArmor2 );			//	Inner Armor circular
+	CG_DrawPic(   x, y, 80 * ratio, 80, cgs.media.HUDArmor2 );			//	Inner Armor circular
 /*
 	if (ps->stats[STAT_ARMOR])	// Is there armor? Draw the HUD Armor TIC
 	{
@@ -606,7 +627,7 @@ static void CG_DrawArmor(int x,int y)
 	}
 */
 	cgi_R_SetColor( colorTable[CT_HUD_GREEN] );
-	CG_DrawNumField (x + 16 + 14, y + 40 + 14, 3, ps->stats[STAT_ARMOR], 6, 12,
+	CG_DrawNumField ((x + 16 + 14) * ratio, y + 40 + 14, 3, ps->stats[STAT_ARMOR], 6 * ratio, 12,
 		NUM_FONT_SMALL,qfalse);
 
 }
@@ -624,7 +645,7 @@ static qboolean CG_DrawCustomHealthHud( centity_t *cent )
 		color[3] = 0.3f;
 
 		cgi_R_SetColor( color );
-		CG_DrawPic( 14, 480 - 50, 94, 32, cgs.media.whiteShader );
+		CG_DrawPic( 14 * cgs.widthRatioCoef, 480 - 50, 94 * cgs.widthRatioCoef, 32, cgs.media.whiteShader );
 
 		// NOTE: this looks ugly
 		if ( cent->gent && cent->gent->owner )
@@ -645,10 +666,10 @@ static qboolean CG_DrawCustomHealthHud( centity_t *cent )
 		color[3] = 0.5f;
 
 		cgi_R_SetColor( color );
-		CG_DrawPic( 18, 480 - 41, 87 * health, 19, cgs.media.whiteShader );
+		CG_DrawPic( 18 * cgs.widthRatioCoef, 480 - 41, (87 * health) * cgs.widthRatioCoef, 19, cgs.media.whiteShader );
 
 		cgi_R_SetColor( colorTable[CT_WHITE] );
-		CG_DrawPic( 2, 480 - 64, 128, 64, cgs.media.emplacedHealthBarShader);
+		CG_DrawPic( 2 * cgs.widthRatioCoef, 480 - 64, 128 * cgs.widthRatioCoef, 64, cgs.media.emplacedHealthBarShader);
 
 		return qfalse; // drew this hud, so don't draw the player one
 	}
@@ -659,7 +680,7 @@ static qboolean CG_DrawCustomHealthHud( centity_t *cent )
 		color[3] = 0.3f;
 
 		cgi_R_SetColor( color );
-		CG_DrawPic( 14, 480 - 50, 94, 32, cgs.media.whiteShader );
+		CG_DrawPic( 14 * cgs.widthRatioCoef, 480 - 50, 94 * cgs.widthRatioCoef, 32, cgs.media.whiteShader );
 
 		// we just calc the display value from the sum of health and armor
 		if ( g_entities[cg.snap->ps.viewEntity].activator ) // ensure we can look back to the atst_drivable to get the max health
@@ -678,10 +699,10 @@ static qboolean CG_DrawCustomHealthHud( centity_t *cent )
 		color[3] = 0.5f;
 
 		cgi_R_SetColor( color );
-		CG_DrawPic( 18, 480 - 41, 87 * health, 19, cgs.media.whiteShader );
+		CG_DrawPic( 18 * cgs.widthRatioCoef, 480 - 41, (87 * health) * cgs.widthRatioCoef, 19, cgs.media.whiteShader );
 
 		cgi_R_SetColor( colorTable[CT_WHITE] );
-		CG_DrawPic( 2, 480 - 64, 128, 64, cgs.media.emplacedHealthBarShader);
+		CG_DrawPic( 2 * cgs.widthRatioCoef, 480 - 64, 128 * cgs.widthRatioCoef, 64, cgs.media.emplacedHealthBarShader);
 
 		return qfalse; // drew this hud, so don't draw the player one
 	}
@@ -692,7 +713,7 @@ static qboolean CG_DrawCustomHealthHud( centity_t *cent )
 		color[3] = 0.3f;
 
 		cgi_R_SetColor( color );
-		CG_DrawPic( 14, 480 - 50, 94, 32, cgs.media.whiteShader );
+		CG_DrawPic( 14 * cgs.widthRatioCoef, 480 - 50, 94 * cgs.widthRatioCoef, 32, cgs.media.whiteShader );
 
 		health = g_entities[cg.snap->ps.viewEntity].health / (float)g_entities[cg.snap->ps.viewEntity].max_health;
 
@@ -700,10 +721,10 @@ static qboolean CG_DrawCustomHealthHud( centity_t *cent )
 		color[3] = 0.5f;
 
 		cgi_R_SetColor( color );
-		CG_DrawPic( 18, 480 - 41, 87 * health, 19, cgs.media.whiteShader );
+		CG_DrawPic( 18 * cgs.widthRatioCoef, 480 - 41, (87 * health) * cgs.widthRatioCoef, 19, cgs.media.whiteShader );
 
 		cgi_R_SetColor( colorTable[CT_WHITE] );
-		CG_DrawPic( 2, 480 - 64, 128, 64, cgs.media.ladyLuckHealthShader );
+		CG_DrawPic( 2 * cgs.widthRatioCoef, 480 - 64, 128 * cgs.widthRatioCoef, 64, cgs.media.ladyLuckHealthShader );
 
 		return qfalse; // drew this hud, so don't draw the player one
 	}
@@ -734,7 +755,7 @@ static void CG_DrawBatteryCharge( void )
 		cgi_R_SetColor( color );
 
 		// batteries were just charged
-		CG_DrawPic( 605, 295, 24, 32, cgs.media.batteryChargeShader );
+		CG_DrawPic( SCREEN_WIDTH - (SCREEN_WIDTH - 605) * cgs.widthRatioCoef, 295, 24 * cgs.widthRatioCoef, 32, cgs.media.batteryChargeShader );
 	}
 }
 
@@ -761,9 +782,9 @@ static void CG_DrawHUD( centity_t *cent )
 			CG_DrawSmallStringColor(x+5, y - 40,va("Health:%d",cg.snap->ps.stats[STAT_HEALTH]), colorTable[CT_HUD_GREEN] );
 		}
 
-		CG_DrawHUDLeftFrame1(x,y);
-		CG_DrawArmor(x,y);
-		CG_DrawHealth(x,y);
+		CG_DrawHUDLeftFrame1(x,y,qtrue);
+		CG_DrawArmor(x,y,qtrue);
+		CG_DrawHealth(x,y,qtrue);
 		CG_DrawHUDLeftFrame2(x,y);
 	}
 
@@ -790,10 +811,10 @@ static void CG_DrawHUD( centity_t *cent )
 			CG_DrawSmallStringColor(x, y - 40,va("Force:%d",cent->gent->client->ps.forcePower), colorTable[CT_HUD_GREEN] );
 		}
 
-		CG_DrawHUDRightFrame1(x,y);
-		CG_DrawForcePower(cent,x,y);
-		CG_DrawAmmo(cent,x,y);
-		CG_DrawMessageLit(cent,x,y);
+		CG_DrawHUDRightFrame1(x,y,qtrue);
+		CG_DrawForcePower(cent,x,y,qtrue);
+		CG_DrawAmmo(cent,x,y,qtrue);
+		CG_DrawMessageLit(cent,x,y,qtrue);
 		CG_DrawHUDRightFrame2(x,y);
 	}
 }
@@ -828,9 +849,9 @@ void CG_DrawDataPadHUD( centity_t *cent )
 	x = 34;
 	y = 286;
 
-	CG_DrawHUDLeftFrame1(x,y);
-	CG_DrawArmor(x,y);
-	CG_DrawHealth(x,y);
+	CG_DrawHUDLeftFrame1(x,y,qfalse);
+	CG_DrawArmor(x,y,qfalse);
+	CG_DrawHealth(x,y,qfalse);
 
 	x = 526;
 
@@ -858,10 +879,10 @@ void CG_DrawDataPadHUD( centity_t *cent )
 //		CG_ClearDataPadCvars();
 	}
 
-	CG_DrawHUDRightFrame1(x,y);
-	CG_DrawForcePower(cent,x,y);
-	CG_DrawAmmo(cent,x,y);
-	CG_DrawMessageLit(cent,x,y);
+	CG_DrawHUDRightFrame1(x,y,qfalse);
+	CG_DrawForcePower(cent,x,y,qfalse);
+	CG_DrawAmmo(cent,x,y,qfalse);
+	CG_DrawMessageLit(cent,x,y,qfalse);
 
 	cgi_R_SetColor( colorTable[CT_WHITE]);
 	CG_DrawPic( 0, 0, 640, 480, cgs.media.dataPadFrame );
@@ -1056,9 +1077,13 @@ static void CG_DrawZoomMask( void )
 		// Using a magic number to convert the zoom level to a rotation amount that correlates more or less with the zoom artwork.
 		level *= 103.0f;
 
+		float xOffset = ((SCREEN_WIDTH - (SCREEN_WIDTH * cgs.widthRatioCoef)) / 2);
+		CG_FillRect(0, 0, xOffset, SCREEN_HEIGHT, colorTable[CT_BLACK]);
+		CG_FillRect(SCREEN_WIDTH - xOffset, 0, xOffset, SCREEN_HEIGHT, colorTable[CT_BLACK]);
+
 		// Draw target mask
 		cgi_R_SetColor( colorTable[CT_WHITE] );
-		CG_DrawPic( 0, 0, 640, 480, cgs.media.disruptorMask );
+		CG_DrawPic( xOffset, 0, 640 * cgs.widthRatioCoef, 480, cgs.media.disruptorMask );
 
 		// apparently 99.0f is the full zoom level
 		if ( level >= 99 )
@@ -1073,7 +1098,7 @@ static void CG_DrawZoomMask( void )
 		}
 
 		// Draw rotating insert
-		CG_DrawRotatePic2( 320, 240, 640, 480, -level, cgs.media.disruptorInsert );
+		CG_DrawRotatePic2( 320, 240, 640, 480, -level, cgs.media.disruptorInsert, cgs.widthRatioCoef );
 
 		float cx, cy;
 		float max;
@@ -1115,7 +1140,7 @@ static void CG_DrawZoomMask( void )
 			cx = 320 + sin( (i+90.0f)/57.296f ) * 190;
 			cy = 240 + cos( (i+90.0f)/57.296f ) * 190;
 
-			CG_DrawRotatePic2( cx, cy, 12, 24, 90 - i, cgs.media.disruptorInsertTick );
+			CG_DrawRotatePic2( (cx * cgs.widthRatioCoef) + xOffset, cy, 12, 24, 90 - i, cgs.media.disruptorInsertTick, cgs.widthRatioCoef );
 		}
 
 		// FIXME: doesn't know about ammo!! which is bad because it draws charge beyond what ammo you may have..
@@ -1131,7 +1156,7 @@ static void CG_DrawZoomMask( void )
 				max = 1.0f;
 			}
 
-			CG_DrawPic2( 257, 435, 134 * max, 34, 0,0,max,1,cgi_R_RegisterShaderNoMip( "gfx/2d/crop_charge" ));
+			CG_DrawPic2( (257 * cgs.widthRatioCoef) + xOffset, 435, (134 * max) * cgs.widthRatioCoef, 34, 0,0,max,1,cgi_R_RegisterShaderNoMip( "gfx/2d/crop_charge" ));
 		}
 	}
 	//-----------
@@ -1258,7 +1283,7 @@ static void CG_DrawPickupItem( void ) {
 		{
 			CG_RegisterItemVisuals( value );
 			cgi_R_SetColor( fadeColor );
-			CG_DrawPic( 573, 340, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon );
+			CG_DrawPic( SCREEN_WIDTH - (SCREEN_WIDTH - 573) * cgs.widthRatioCoef, 340, ICON_SIZE * cgs.widthRatioCoef, ICON_SIZE, cg_items[ value ].icon );
 			//CG_DrawBigString( ICON_SIZE + 16, 398, bg_itemlist[ value ].classname, fadeColor[0] );
 			//CG_DrawProportionalString( ICON_SIZE + 16, 398,
 			//	bg_itemlist[ value ].classname, CG_SMALLFONT,fadeColor );
@@ -1517,6 +1542,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 	{
 		if ( !Q_stricmp( "misc_panel_turret", g_entities[cg.snap->ps.viewEntity].classname ))
 		{
+			w *= cgs.widthRatioCoef;
 			// draws a custom crosshair that is twice as large as normal
 			cgi_R_DrawStretchPic( x + cg.refdef.x + 320 - w,
 				y + cg.refdef.y + 240 - h,
@@ -1527,6 +1553,8 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 	else
 	{
 		hShader = cgs.media.crosshairShader[ cg_drawCrosshair.integer % NUM_CROSSHAIRS ];
+
+		w *= cgs.widthRatioCoef;
 
 		cgi_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (640 - w),
 			y + cg.refdef.y + 0.5 * (480 - h),
@@ -1786,7 +1814,8 @@ static void CG_ScanForCrosshairEntity( qboolean scanAll )
 		{//100% accurate
 			vec3_t d_f, d_rt, d_up;
 			if ( cg.snap->ps.weapon == WP_NONE ||
-				cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_STUN_BATON )
+				cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_STUN_BATON ||
+				!Q_stricmp("misc_panel_turret", g_entities[cg.snap->ps.viewEntity].classname)) //fixes crosshair missing when viewing turret in first person
 			{
 				if ( cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD )
 				{//in camera ent view
@@ -2033,7 +2062,7 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 			cgi_R_SetColor( color );
 
 			// our slices are offset by about 45 degrees.
-			CG_DrawRotatePic( cx - sz, cy - sz, sz, sz, i * 45.0f, cgi_R_RegisterShaderNoMip( "gfx/2d/wedge" ));
+			CG_DrawRotatePic( cx - sz, cy - sz, sz, sz, i * 45.0f, cgi_R_RegisterShaderNoMip( "gfx/2d/wedge"), cgs.widthRatioCoef);
 		}
 
 		// we are locked and loaded baby
@@ -2044,7 +2073,7 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 
 			cgi_R_SetColor( color );
 
-			CG_DrawPic( cx - sz, cy - sz * 2, sz * 2, sz * 2, cgi_R_RegisterShaderNoMip( "gfx/2d/lock" ));
+			CG_DrawPic( cx - (sz * cgs.widthRatioCoef), cy - sz * 2, (sz * 2) * cgs.widthRatioCoef, sz * 2, cgi_R_RegisterShaderNoMip( "gfx/2d/lock" ));
 		}
 	}
 }
@@ -2098,8 +2127,8 @@ static float CG_DrawSnapshot( float y ) {
 	s = va( "time:%i snap:%i cmd:%i", cg.snap->serverTime,
 		cg.latestSnapshotNum, cgs.serverCommandSequence );
 
-	w = cgi_R_Font_StrLenPixels(s, cgs.media.qhFontMedium, 1.0f);
-	cgi_R_Font_DrawString(635 - w, y+2, s, colorTable[CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
+	w = cgi_R_Font_StrLenPixels(s, cgs.media.qhFontMedium, 1.0f, cgs.widthRatioCoef);
+	cgi_R_Font_DrawString((635 * cgs.widthRatioCoef) - w, y+2, s, colorTable[CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef);
 
 	return y + BIGCHAR_HEIGHT + 10;
 }
@@ -2141,8 +2170,8 @@ static float CG_DrawFPS( float y ) {
 	fps = 1000 * FPS_FRAMES / total;
 
 	s = va( "%ifps", fps );
-	const int w = cgi_R_Font_StrLenPixels(s, cgs.media.qhFontMedium, 1.0f);
-	cgi_R_Font_DrawString(635 - w, y+2, s, colorTable[CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
+	const int w = cgi_R_Font_StrLenPixels(s, cgs.media.qhFontMedium, 1.0f, cgs.widthRatioCoef);
+	cgi_R_Font_DrawString((635 * cgs.widthRatioCoef) - w, y+2, s, colorTable[CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef);
 
 	return y + BIGCHAR_HEIGHT + 10;
 }
@@ -2165,8 +2194,8 @@ static float CG_DrawTimer( float y ) {
 
 	s = va( "%i:%i%i", mins, tens, seconds );
 
-	w = cgi_R_Font_StrLenPixels(s, cgs.media.qhFontMedium, 1.0f);
-	cgi_R_Font_DrawString(635 - w, y+2, s, colorTable[CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
+	w = cgi_R_Font_StrLenPixels(s, cgs.media.qhFontMedium, 1.0f, cgs.widthRatioCoef);
+	cgi_R_Font_DrawString((635 * cgs.widthRatioCoef) - w, y+2, s, colorTable[CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef);
 
 	return y + BIGCHAR_HEIGHT + 10;
 }
@@ -2201,8 +2230,8 @@ static void CG_DrawAmmoWarning( void ) {
 		//s = "LOW AMMO WARNING";
 	}
 
-	w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 1.0f);
-	cgi_R_Font_DrawString(320 - w/2, 64, text, colorTable[CT_LTGOLD1], cgs.media.qhFontSmall, -1, 1.0f);
+	w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 1.0f, cgs.widthRatioCoef);
+	cgi_R_Font_DrawString(320 - w/2, 64, text, colorTable[CT_LTGOLD1], cgs.media.qhFontSmall, -1, 1.0f, cgs.widthRatioCoef);
 }
 
 //---------------------------------------
@@ -2233,8 +2262,8 @@ static qboolean CG_RenderingFromMiscCamera()
 		else if ( !Q_stricmp( "misc_panel_turret", g_entities[cg.snap->ps.viewEntity].classname ))
 		{
 			// could do a panel turret screen overlay...this is a cheesy placeholder
-			CG_DrawPic( 30, 90, 128, 300, cgs.media.turretComputerOverlayShader );
-			CG_DrawPic( 610, 90, -128, 300, cgs.media.turretComputerOverlayShader );
+			CG_DrawPic( 30, 90, 128 * cgs.widthRatioCoef, 300, cgs.media.turretComputerOverlayShader );
+			CG_DrawPic( 610, 90, -128 * cgs.widthRatioCoef, 300, cgs.media.turretComputerOverlayShader );
 		}
 		else
 		{
@@ -2401,10 +2430,10 @@ static void CG_Draw2D( void )
 			y_pos = (SCREEN_HEIGHT/2)+80;
 			if ( cg_missionInfoCentered.integer )
 			{
-				w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontSmall, 1.0f);
+				w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontSmall, 1.0f, cgs.widthRatioCoef);
 				x_pos = (SCREEN_WIDTH/2)-(w/2);
 			}
-			cgi_R_Font_DrawString(x_pos, y_pos, text,  colorTable[CT_LTRED1], cgs.media.qhFontMedium, -1, 1.0f);
+			cgi_R_Font_DrawString(x_pos, y_pos, text,  colorTable[CT_LTRED1], cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef);
 
 			if (cg_updatedDataPadForcePower1.integer)
 			{
@@ -2412,10 +2441,10 @@ static void CG_Draw2D( void )
 				cgi_SP_GetStringTextString("INGAME_NEW_FORCE_POWER_INFO", text, sizeof(text) );
 				if ( cg_missionInfoCentered.integer )
 				{
-					w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontSmall, 1.0f);
+					w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontSmall, 1.0f, cgs.widthRatioCoef);
 					x_pos = (SCREEN_WIDTH/2)-(w/2);
 				}
-				cgi_R_Font_DrawString(x_pos, y_pos, text,  colorTable[CT_LTRED1], cgs.media.qhFontMedium, -1, 1.0f);
+				cgi_R_Font_DrawString(x_pos, y_pos, text,  colorTable[CT_LTRED1], cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef);
 			}
 
 			if (cg_updatedDataPadObjective.integer)
@@ -2424,10 +2453,10 @@ static void CG_Draw2D( void )
 				cgi_SP_GetStringTextString( "INGAME_NEW_OBJECTIVE_INFO", text, sizeof(text) );
 				if ( cg_missionInfoCentered.integer )
 				{
-					w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontSmall, 1.0f);
+					w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontSmall, 1.0f, cgs.widthRatioCoef);
 					x_pos = (SCREEN_WIDTH/2)-(w/2);
 				}
-				cgi_R_Font_DrawString(x_pos, y_pos, text,  colorTable[CT_LTRED1], cgs.media.qhFontMedium, -1, 1.0f);
+				cgi_R_Font_DrawString(x_pos, y_pos, text,  colorTable[CT_LTRED1], cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef);
 			}
 
 	//		if (cent->gent->client->sess.missionObjectivesShown<3)

@@ -70,7 +70,7 @@ struct StringAndSize_t
 	{
 		if (iStrLenPixels == -1)
 		{
-			iStrLenPixels = cgi_R_Font_StrLenPixels(str.c_str(), ghFontHandle, gfFontScale);
+			iStrLenPixels = cgi_R_Font_StrLenPixels(str.c_str(), ghFontHandle, gfFontScale, cgs.widthRatioCoef);
 		}
 
 		return iStrLenPixels;
@@ -545,7 +545,7 @@ qboolean CG_Credits_Draw( void )
 			//
 			int iWidth = CreditCard.strTitle.GetPixelLength();
 			int iXpos  = (SCREEN_WIDTH - iWidth)/2;
-			cgi_R_Font_DrawString(iXpos, iYpos, CreditCard.strTitle.c_str(), gv4Color, ghFontHandle, -1, gfFontScale);
+			cgi_R_Font_DrawString(iXpos, iYpos, CreditCard.strTitle.c_str(), gv4Color, ghFontHandle, -1, gfFontScale, cgs.widthRatioCoef);
 			//
 			iYpos += iFontHeight*2;	// skip blank line then move to main pos
 			//
@@ -554,7 +554,7 @@ qboolean CG_Credits_Draw( void )
 				StringAndSize_t &StringAndSize = CreditCard.vstrText[i];
 				iWidth = StringAndSize.GetPixelLength();
 				iXpos  = (SCREEN_WIDTH - iWidth)/2;
-				cgi_R_Font_DrawString(iXpos, iYpos, StringAndSize.c_str(), gv4Color, ghFontHandle, -1, gfFontScale);
+				cgi_R_Font_DrawString(iXpos, iYpos, StringAndSize.c_str(), gv4Color, ghFontHandle, -1, gfFontScale, cgs.widthRatioCoef);
 				iYpos += iFontHeight;
 			}
 
@@ -613,12 +613,14 @@ qboolean CG_Credits_Draw( void )
 						//
 						bool bIsDotted = !!CreditLine.vstrText.size();	// eg "STUNTS ...................... MR ED"
 
+						float xOffset = ((SCREEN_WIDTH - (SCREEN_WIDTH * cgs.widthRatioCoef)) / 2);
+
 						int iWidth = CreditLine.strText.GetPixelLength();
-						int iXpos  = bIsDotted ? 4 : (SCREEN_WIDTH - iWidth)/2;
+						int iXpos  = bIsDotted ? 4 + xOffset : (SCREEN_WIDTH - iWidth)/2;
 
 						gv4Color[3] = 1.0f;
 
-						cgi_R_Font_DrawString(iXpos, iYpos, CreditLine.strText.c_str(), gv4Color, ghFontHandle, -1, gfFontScale);
+						cgi_R_Font_DrawString(iXpos, iYpos, CreditLine.strText.c_str(), gv4Color, ghFontHandle, -1, gfFontScale, cgs.widthRatioCoef);
 
 						// now print any dotted members...
 						//
@@ -627,7 +629,7 @@ qboolean CG_Credits_Draw( void )
 							StringAndSize_t &StringAndSize = CreditLine.vstrText[i];
 							iWidth = StringAndSize.GetPixelLength();
 							iXpos  = (SCREEN_WIDTH-4 - iWidth);
-							cgi_R_Font_DrawString(iXpos, iYpos, StringAndSize.c_str(), gv4Color, ghFontHandle, -1, gfFontScale);
+							cgi_R_Font_DrawString(iXpos - xOffset, iYpos, StringAndSize.c_str(), gv4Color, ghFontHandle, -1, gfFontScale, cgs.widthRatioCoef);
 							iYpos += iFontHeight;
 						}
 					}

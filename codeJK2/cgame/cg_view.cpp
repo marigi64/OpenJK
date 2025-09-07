@@ -1263,6 +1263,13 @@ qboolean CG_CalcFOVFromX( float fov_x )
 		const float desiredFov = fov_x;
 
 		fov_x = atan( tan( desiredFov*M_PI / 360.0f ) * baseAspect*aspect )*360.0f / M_PI;
+
+		gentity_t* gent = &g_entities[cg.snap->ps.viewEntity];
+		if (gent->client && (gent->client->NPC_class == CLASS_MOUSE && !cg.renderingThirdPerson)) // fixes too high fov for first person mouse droid
+		{
+			if (fov_x > 120)
+				fov_x = 120;
+		}
 	}
 
 	x = cg.refdef.width / tan( fov_x / 360 * M_PI );
@@ -1560,8 +1567,8 @@ void CG_SaberClashFlare( void )
 	VectorSet( color, 0.8f, 0.8f, 0.8f );
 	cgi_R_SetColor( color );
 
-	CG_DrawPic( x - ( v * 300 ), y - ( v * 300 ),
-				v * 600, v * 600,
+	CG_DrawPic( x - ( v * 300 * cgs.widthRatioCoef), y - ( v * 300 ),
+				(v * 600) * cgs.widthRatioCoef, v * 600,
 				cgi_R_RegisterShader( "gfx/effects/saberFlare" ));
 }
 

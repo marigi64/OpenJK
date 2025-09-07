@@ -72,7 +72,12 @@ void UI_DrawConnect( const char *servername, const char *updateInfoString ) {
 	// draw the dialog background
 	if (!qValid)
 	{
-		UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackShader );
+		float xOffset = 0.5f * ((SCREEN_WIDTH / uiInfo.uiDC.widthRatioCoef) - SCREEN_WIDTH);
+
+		UI_FillRect(0, 0, xOffset, SCREEN_HEIGHT, colorTable[CT_BLACK]);
+		UI_FillRect(SCREEN_WIDTH - xOffset, 0, xOffset, SCREEN_HEIGHT, colorTable[CT_BLACK]);
+
+		UI_DrawHandlePic(xOffset * uiInfo.uiDC.widthRatioCoef, 0, SCREEN_WIDTH * uiInfo.uiDC.widthRatioCoef, SCREEN_HEIGHT, uis.menuBackShader );
 	}
 	else {
 		UI_DrawThumbNail(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, levelPic );

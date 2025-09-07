@@ -439,6 +439,14 @@ static void UI_UpdateScreenshot( void )
 	}
 }
 
+vmCvar_t cl_ratioFix;
+static void UI_Set2DRatio(void) {
+	if (cl_ratioFix.integer)
+		uiInfo.uiDC.widthRatioCoef = (float)(SCREEN_WIDTH * uiInfo.uiDC.glconfig.vidHeight) / (float)(SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth);
+	else
+		uiInfo.uiDC.widthRatioCoef = 1.0f;
+}
+
 static cvarTable_t cvarTable[] =
 {
 	{ &ui_menuFiles,			"ui_menuFiles",			"ui/menus.txt", NULL, CVAR_ARCHIVE },
@@ -467,7 +475,9 @@ static cvarTable_t cvarTable[] =
 
 	{ &ui_PrecacheModels,		"ui_PrecacheModels",	"1", NULL, CVAR_ARCHIVE},
 
-	{ &ui_screenshotType,		"ui_screenshotType",	"jpg", UI_UpdateScreenshot, CVAR_ARCHIVE }
+	{ &ui_screenshotType,		"ui_screenshotType",	"jpg", UI_UpdateScreenshot, CVAR_ARCHIVE },
+
+	{ &cl_ratioFix,				"cl_ratioFix",			"",	   UI_Set2DRatio, 0}
 };
 
 #define FP_UPDATED_NONE -1
@@ -541,7 +551,7 @@ void _UI_Refresh( int realtime )
 	{
 		if (uiInfo.uiDC.cursorShow == qtrue)
 		{
-			UI_DrawHandlePic( uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
+			UI_DrawHandlePic( uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48 * uiInfo.uiDC.widthRatioCoef, 48, uiInfo.uiDC.Assets.cursor);
 		}
 	}
 }
@@ -642,7 +652,8 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, i
 							color,	// paletteRGBA_c c
 							iStyleOR | iFontIndex,	// const int iFontHandle
 							!iMaxPixelWidth?-1:iMaxPixelWidth,	// iMaxPixelWidth (-1 = none)
-							scale	// const float scale = 1.0f
+							scale,	// const float scale = 1.0f
+							uiInfo.uiDC.widthRatioCoef
 							);
 }
 
@@ -669,7 +680,7 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
 	strncpy(sTemp,text,iCopyCount);
 			sTemp[iCopyCount] = '\0';
 
-	int iNextXpos  = ui.R_Font_StrLenPixels(sTemp, iFontIndex, scale );
+	int iNextXpos  = ui.R_Font_StrLenPixels(sTemp, iFontIndex, scale, uiInfo.uiDC.widthRatioCoef );
 
 	Text_Paint(x+iNextXpos, y, scale, color, va("%c",cursor), iMaxPixelWidth, style|ITEM_TEXTSTYLE_BLINK, iFontIndex);
 }
@@ -2647,12 +2658,13 @@ void _UI_Init( qboolean inGameLoad )
 
 	uiInfo.inGameLoad = inGameLoad;
 
-	UI_RegisterCvars();
 
 	UI_InitMemory();
 
 	// cache redundant calulations
 	trap_GetGlconfig( &uiInfo.uiDC.glconfig );
+
+	UI_RegisterCvars();
 
 	// for 640x480 virtualized screen
 	uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0/480.0);
@@ -3873,7 +3885,8 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 									color,	// paletteRGBA_c c
 									iFontIndex,	// const int iFontHandle
 									w,//-1,		// iMaxPixelWidth (-1 = none)
-									scale	// const float scale = 1.0f
+									scale,	// const float scale = 1.0f
+									uiInfo.uiDC.widthRatioCoef
 									);
 			break;
 		case UI_PREVIEWCINEMATIC:
@@ -3935,7 +3948,7 @@ int Text_Width(const char *text, float scale, int iFontIndex)
 	{
 		iFontIndex = uiInfo.uiDC.Assets.qhMediumFont;
 	}
-	return ui.R_Font_StrLenPixels(text, iFontIndex, scale);
+	return ui.R_Font_StrLenPixels(text, iFontIndex, scale, uiInfo.uiDC.widthRatioCoef );
 }
 
 /*
