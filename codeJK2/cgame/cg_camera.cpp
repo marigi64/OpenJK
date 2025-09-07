@@ -1187,24 +1187,27 @@ void CGCam_DrawWideScreen( void )
 	vec4_t	modulate;
 
 	float aspect = (float)cg.refdef.width / (float)cg.refdef.height;
-	float targetAspect = 5.0f / 3.0f;
+	static const float targetAspect = 5.0f / 3.0f;
 
 	//Only draw if visible
-	if ( (aspect < targetAspect || cg_forceCutsceneBorders.integer) && client_camera.bar_alpha )
-	{
-		CGCam_UpdateBarFade();
 
-		modulate[0] = modulate[1] = modulate[2] = 0.0f;
-		modulate[3] = client_camera.bar_alpha;
+	if (aspect < targetAspect || cg_forceCutsceneBorders.integer)
+	{
+		if ( client_camera.bar_alpha )
+		{
+			CGCam_UpdateBarFade();
+
+			modulate[0] = modulate[1] = modulate[2] = 0.0f;
+			modulate[3] = client_camera.bar_alpha;
 
 		CG_FillRect( cg.refdef.x, cg.refdef.y, 640, client_camera.bar_height, modulate  );
 		CG_FillRect( cg.refdef.x, cg.refdef.y + 480 - client_camera.bar_height, 640, client_camera.bar_height, modulate  );
-	}
+		}
 
-	//NOTENOTE: Camera always draws the fades unless the alpha is 0
+		//NOTENOTE: Camera always draws the fades unless the alpha is 0
 	if ( client_camera.fade_color[3] == 0.0f )
-		return;
-
+			return;
+	}
 	CG_FillRect( cg.refdef.x, cg.refdef.y, 640, 480, client_camera.fade_color );
 }
 
