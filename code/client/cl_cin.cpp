@@ -2000,7 +2000,7 @@ static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
 
 		if (cl_FMV_RatioFix && cl_FMV_RatioFix->integer)
 		{
-			const float baseAspect = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
+			static const float baseAspect = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
 			float screenAspect = (float)cls.glconfig.vidWidth / (float)cls.glconfig.vidHeight;
 
 			if (screenAspect >= baseAspect)
@@ -2011,10 +2011,16 @@ static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
 				destY = 0;
 			}
 
+			if (!Q_stricmp(arg, "video/outcast.roq"))
+			{
+				destW = (int)roundf(SCREEN_WIDTH * (1 / screenAspect));
+				destX = (SCREEN_WIDTH - destW) / 2;
+			}
+
 			if (IsLetterboxedFMV(arg) && cl_FMV_RatioFix->value >= 2)
 			{
-				const float targetAspect = 16.0f / 9.0f;
-				const float stretch = (float)SCREEN_HEIGHT / 338.0f;
+				static const float targetAspect = 16.0f / 9.0f;
+				static const float stretch = (float)SCREEN_HEIGHT / 338.0f;
 
 				if (screenAspect >= targetAspect)
 				{
