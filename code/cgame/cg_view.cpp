@@ -1263,10 +1263,15 @@ qboolean CG_CalcFOVFromX( float fov_x )
 	float	fov_y;
 	qboolean	inwater;
 
+	float aspect = (float)cg.refdef.width / (float)cg.refdef.height;
+	static const float targetAspect = 4.0f / 3.0f;
+
 	if ( cg_fovAspectAdjust.integer ) {
 		// Based on LordHavoc's code for Darkplaces
 		// http://www.quakeworld.nu/forum/topic/53/what-does-your-qw-look-like/page/30
-		const float baseAspect = 0.75f; // 3/4
+		float baseAspect = 0.75f; // 3/4
+		if (in_camera && (aspect > targetAspect) && !cg_forceCutsceneBorders.integer)
+			baseAspect = 0.6f; // 3/5
 		const float aspect = (float)cgs.glconfig.vidWidth/(float)cgs.glconfig.vidHeight;
 		const float desiredFov = fov_x;
 
