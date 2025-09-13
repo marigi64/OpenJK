@@ -1620,7 +1620,11 @@ static void CIN_AddTextCrawl()
 	const float baseAspect = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
 	float screenAspect = (float)cls.glconfig.vidWidth / (float)cls.glconfig.vidHeight;
 	const float targetAspect = 16.0f / 9.0f;
+#ifdef JK2_MODE
 	const float altAspect = 640.0f / 338.0f; //ratio for letterbox FMVs stretched to 4:3
+#else
+	const float altAspect = 5.0f / 3.0f; //ratio for letterbox FMVs stretched to 4:3
+#endif
 
 	float visibleHeight;
 	float planeWidth = TC_PLANE_WIDTH;
@@ -2020,7 +2024,12 @@ static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
 			if (IsLetterboxedFMV(arg) && cl_FMV_RatioFix->value >= 2)
 			{
 				static const float targetAspect = 16.0f / 9.0f;
+
+#ifdef JK2_MODE
 				static const float stretch = (float)SCREEN_HEIGHT / 338.0f;
+#else
+				static const float stretch = (float)SCREEN_HEIGHT / 384.0f;
+#endif
 
 				if (screenAspect >= targetAspect)
 				{
