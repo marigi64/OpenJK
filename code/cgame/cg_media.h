@@ -407,6 +407,7 @@ typedef struct {
 	// effects
 	cgEffects_t		effects;
 
+	float			widthRatioCoef;
 } cgs_t;
 
 extern	cgs_t			cgs;

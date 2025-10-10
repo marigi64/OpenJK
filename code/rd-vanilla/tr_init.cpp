@@ -242,6 +242,43 @@ bool g_bTextureRectangleHack = false;
 
 void RE_SetLightStyle(int style, int color);
 
+
+#define VANILLA_SPLASH_CRC32 0xB3999B97
+static unsigned ComputeFileCRC32FromBaseName(const char* baseName)
+{
+	static unsigned table[256];
+	static int inited = 0;
+	if (!inited) {              // build table once
+		const unsigned poly = 0xEDB88320u;
+		for (unsigned i = 0; i < 256; ++i) {
+			unsigned crc = i;
+			for (unsigned j = 0; j < 8; ++j) crc = (crc & 1) ? (crc >> 1) ^ poly : crc >> 1;
+			table[i] = crc;
+		}
+		inited = 1;
+	}
+
+	const char* exts[] = { ".jpg"};
+	char filename[MAX_QPATH];
+	byte* buf = NULL;
+	for (int ei = 0; exts[ei][0]; ++ei) {
+		Com_sprintf(filename, sizeof(filename), "%s%s", baseName, exts[ei]);
+		int len = ri.FS_ReadFile(filename, (void**)&buf);
+		if (len > 0 && buf) {
+			const unsigned char* p = (const unsigned char*)buf;
+			unsigned crc = 0xFFFFFFFFu;
+			for (int i = 0; i < len; ++i) crc = (crc >> 8) ^ table[(crc ^ p[i]) & 0xFFu];
+			crc ^= 0xFFFFFFFFu;
+			ri.FS_FreeFile(buf);
+			ri.Printf(PRINT_DEVELOPER, "%s crc=0x%08X\n", filename, crc);
+			return crc;
+		}
+		if (buf) { ri.FS_FreeFile(buf); buf = NULL; }
+	}
+	return 0;
+}
+
+
 void R_Splash()
 {
 	image_t *pImage = R_FindImageFile( "menu/splash", qfalse, qfalse, qfalse, GL_CLAMP);
@@ -254,13 +291,35 @@ void R_Splash()
 	}
 	else
 	{
-		extern void	RB_SetGL2D (void);
+		// cached check so we only read the file once
+		static unsigned cachedCRC = 0;
+		static int cachedChecked = 0;
+		static int cachedIsVanilla = 0;
+		static float ratio = 1;
+
+		if (!cachedChecked && cl_ratioFix->integer)
+		{
+			cachedChecked = 1;
+			cachedCRC = ComputeFileCRC32FromBaseName("menu/splash");
+			if (cachedCRC != 0 && (unsigned)VANILLA_SPLASH_CRC32 != 0 && cachedCRC == (unsigned)VANILLA_SPLASH_CRC32)
+				cachedIsVanilla = 1;
+		}
+
+		extern void RB_SetGL2D (void);
 		RB_SetGL2D();
 
 		GL_Bind( pImage );
 		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
 
-		const int width = 640;
+		// Use vanilla splash background colour only when we matched the vanilla CRC and ratio fix is enabled
+		if (cl_ratioFix->integer && cachedIsVanilla)
+		{
+			ratio = (float)(SCREEN_WIDTH * glConfig.vidHeight) / (float)(SCREEN_HEIGHT * glConfig.vidWidth);
+			qglClearColor(0.003922f, 0.007843f, 0.129412f, 1.0f); // vanilla splash bg
+			qglClear(GL_COLOR_BUFFER_BIT);
+		}
+
+		const int width = (int)(640 * ratio);
 		const int height = 480;
 		const float x1 = 320 - width / 2;
 		const float x2 = 320 + width / 2;

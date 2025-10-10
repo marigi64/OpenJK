@@ -1836,6 +1836,32 @@ void Menu_SetItemText(const menuDef_t *menu,const char *itemName, const char *te
 	}
 }
 
+static const char* planetNames[] = {
+	"tatooine",
+	"bakura",
+	"blenjeel",
+	"corellia",
+	"krildor",
+	"narkreeta",
+	"dosuun",
+	"zonju",
+	"coruscant",
+	"big_planet",
+	NULL
+};
+
+static qboolean IsPlanetItem(const itemDef_t* item)
+{
+	if (!item || !item->window.name)
+		return qfalse;
+	for (const char** p = planetNames; *p; ++p)
+	{
+		if (!Q_stricmp(item->window.name, *p))
+			return qtrue;
+	}
+	return qfalse;
+}
+
 /*
 =================
 Menu_TransitionItemByName
@@ -1851,18 +1877,35 @@ void Menu_TransitionItemByName(menuDef_t *menu, const char *p, const rectDef_t *
 		item = Menu_GetMatchingItemByNumber(menu, i, p);
 		if (item != NULL)
 		{
-			if (!rectFrom)
+
+			/* existing behaviour for choosing from-rect */
+			const rectDef_t* useFrom = rectFrom ? rectFrom : &item->window.rect;
+
+			/* make a local copy of rectTo that we can tweak for planets only */
+			rectDef_t scaledRectTo = *rectTo;
+
+			if (IsPlanetItem(item))
 			{
-				rectFrom = &item->window.rect;	//if there are more than one of these with the same name, they'll all use the FIRST one's FROM.
+				if (scaledRectTo.w > 0)
+				{
+					int origW = scaledRectTo.w;
+					int newW = origW * uiInfo.uiDC.widthRatioCoef;
+					scaledRectTo.x += (origW - newW) /2;
+					scaledRectTo.w = newW;
+				}
 			}
+
 			item->window.flags |= (WINDOW_INTRANSITION | WINDOW_VISIBLE);
 			item->window.offsetTime = time;
-			memcpy(&item->window.rectClient, rectFrom, sizeof(rectDef_t));
-			memcpy(&item->window.rectEffects, rectTo, sizeof(rectDef_t));
-			item->window.rectEffects2.x = abs(rectTo->x - rectFrom->x) / amt;
-			item->window.rectEffects2.y = abs(rectTo->y - rectFrom->y) / amt;
-			item->window.rectEffects2.w = abs(rectTo->w - rectFrom->w) / amt;
-			item->window.rectEffects2.h = abs(rectTo->h - rectFrom->h) / amt;
+
+			memcpy(&item->window.rectClient, useFrom, sizeof(rectDef_t));
+			memcpy(&item->window.rectEffects, &scaledRectTo, sizeof(rectDef_t));
+
+			item->window.rectEffects2.x = abs(scaledRectTo.x - useFrom->x) / amt;
+			item->window.rectEffects2.y = abs(scaledRectTo.y - useFrom->y) / amt;
+			item->window.rectEffects2.w = abs(scaledRectTo.w - useFrom->w) / amt;
+			item->window.rectEffects2.h = abs(scaledRectTo.h - useFrom->h) / amt;
+
 			Item_UpdatePosition(item);
 		}
 	}
@@ -5619,11 +5662,17 @@ typedef struct {
 
 static qboolean Item_MatchesSpec(const itemDef_t* item, const specialItemSpec_t* spec) {
 	if (!item || !spec) return qfalse;
-	if (spec->name) {
+
+	if (item->flags & ITF_ISCHARACTER && Q_stricmp(item->window.name, "character"))
+		return qtrue;
+
+	if (spec->name)
+	{
 		if (!item->window.name || Q_stricmp(item->window.name, spec->name) != 0)
 			return qfalse;
 	}
-	if (spec->checkRect) {
+	if (spec->checkRect)
+	{
 		if (item->window.rectClient.x != spec->rectX ||
 			item->window.rectClient.y != spec->rectY ||
 			item->window.rectClient.w != spec->rectW ||
@@ -5631,16 +5680,72 @@ static qboolean Item_MatchesSpec(const itemDef_t* item, const specialItemSpec_t*
 			return qfalse;
 		}
 	}
+
 	return qtrue;
 }
 
 static const specialItemSpec_t g_specialItems[] =
 {
+#ifdef JK2_MODE
 	{ "saberglow", 30, 0, 90, 480, qtrue },
 	{ "starwars", 143, 12, 470, 93, qtrue },
 	{ "saberhalo", -425, - 185, 1000, 1000, qtrue },
 	{ "logomodel", -123, 48, 400, 400, qtrue },
 	{ "saberhalo2", -225, 15, 600, 600, qtrue },
+#else
+	{ "starwars", 107, 8, 428, 112, qtrue },
+
+	//{ "mappic", 25, 31, 266, 200, qtrue },
+	//{ "background", 21, 29, 270, 203, qtrue },
+
+	//weapon menu
+	{ "saber_icon", 24, 30, 80, 80, qtrue },
+	{ "saber_icon_lit", 24, 30, 80, 80, qtrue },
+
+	{ "bpistol_icon", 24, 96, 80, 80, qtrue },
+	{ "bpistol_icon_lit", 24, 96, 80, 80, qtrue },
+
+	{ "brifle_icon", 134, 31, 80, 80, qtrue },
+	{ "brifle_icon_lit", 134, 31, 80, 80, qtrue },
+
+	{ "disruptor_icon", 134, 99, 80, 80, qtrue },
+	{ "disruptor_icon_lit", 134, 99, 80, 80, qtrue },
+
+	{ "bowcaster_icon", 222, 31, 80, 80, qtrue },
+	{ "bowcaster_icon_lit", 222, 31, 80, 80, qtrue },
+
+	{ "demp_icon", 222, 99, 80, 80, qtrue },
+	{ "demp_icon_lit", 222, 99, 80, 80, qtrue },
+
+	{ "repeater_icon", 309, 35, 80, 80, qtrue },
+	{ "repeater_icon_lit", 309, 35, 80, 80, qtrue },
+
+	{ "flechette_icon", 309, 100, 80, 80, qtrue },
+	{ "flechette_icon_lit", 309, 100, 80, 80, qtrue },
+
+	{ "concussion_icon", 395, 30, 80, 80, qtrue },
+	{ "concussion_icon_lit", 395, 30, 80, 80, qtrue },
+
+	{ "rocket_icon", 395, 99, 80, 80, qtrue },
+	{ "rocket_icon_lit", 395, 99, 80, 80, qtrue },
+
+	{ "thermal_icon", 494, 32, 80, 80, qtrue },
+	{ "thermal_icon_lit", 494, 32, 80, 80, qtrue },
+
+	{ "detpack_icon", 553, 36, 80, 80, qtrue },
+	{ "detpack_icon_lit", 553, 36, 80, 80, qtrue },
+
+	{ "tripmine_icon", 526, 100, 80, 80, qtrue },
+	{ "tripmine_icon_lit", 526, 100, 80, 80, qtrue },
+
+	{ "chosen_sabericon", 67, 358, 60, 60, qtrue },
+	{ "chosen_blastericon", 154, 358, 60, 60, qtrue },
+	{ "chosenweapon1_icon", 282, 358, 60, 60, qtrue },
+	{ "chosenweapon2_icon", 369, 358, 60, 60, qtrue },
+	{ "chosenthrowweapon_icon", 500, 358, 60, 60, qtrue },
+
+	{ "weapon_icon", 20, 200, 128, 128, qtrue },
+#endif
 };
 static const int g_specialItemsCount = sizeof(g_specialItems) / sizeof(g_specialItems[0]);
 

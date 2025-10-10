@@ -89,7 +89,7 @@ static void ObjectivePrint_Line(const int color, const int objectIndex, int &mis
 		Q_strncpyz(finalText, va(finalText,currTotal,minTotal), sizeof(finalText));
 	}
 
-	pixelLen = cgi_R_Font_StrLenPixels(finalText, cgs.media.qhFontMedium, 1.0f);
+	pixelLen = cgi_R_Font_StrLenPixels(finalText, cgs.media.qhFontMedium, 1.0f, cgs.widthRatioCoef);
 
 	str = finalText;
 
@@ -144,7 +144,7 @@ static void ObjectivePrint_Line(const int color, const int objectIndex, int &mis
 				colorTable[color],
 				cgs.media.qhFontMedium,
 				-1,
-				1.0f);
+				1.0f, cgs.widthRatioCoef);
 
 			++missionYcnt;
 		}
@@ -160,7 +160,7 @@ static void ObjectivePrint_Line(const int color, const int objectIndex, int &mis
 			while( *str )
 			{
 				holdText2[0] = *str;
-				pixelLen += cgi_R_Font_StrLenPixels(holdText2, cgs.media.qhFontMedium, 1.0f);
+				pixelLen += cgi_R_Font_StrLenPixels(holdText2, cgs.media.qhFontMedium, 1.0f, cgs.widthRatioCoef);
 
 				pixelLen += 2; // For kerning
 				++charLen;
@@ -194,7 +194,7 @@ static void ObjectivePrint_Line(const int color, const int objectIndex, int &mis
 						y,
 						holdText,
 						CG_SMALLFONT,
-						colorTable[color] );
+						colorTable[color], cgs.widthRatioCoef );
 
 					++missionYcnt;
 				}
@@ -211,7 +211,7 @@ static void ObjectivePrint_Line(const int color, const int objectIndex, int &mis
 						objectiveStartingXpos,
 						y, holdText,
 						CG_SMALLFONT,
-						colorTable[color] );
+						colorTable[color], cgs.widthRatioCoef );
 
 					++missionYcnt;
 					break;
@@ -235,7 +235,7 @@ static void ObjectivePrint_Line(const int color, const int objectIndex, int &mis
 			y += OBJ_GRAPHIC_SIZE + 4;
 		}
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/viewscreen1");
-		CG_DrawPic( 355, 50, OBJ_GRAPHIC_SIZE, OBJ_GRAPHIC_SIZE, graphic );
+		CG_DrawPic( 355 + (OBJ_GRAPHIC_SIZE/2 - (OBJ_GRAPHIC_SIZE/2 * cgs.widthRatioCoef)), 50, OBJ_GRAPHIC_SIZE* cgs.widthRatioCoef, OBJ_GRAPHIC_SIZE, graphic);
 		obj_graphics[3] = qtrue;
 	}
 
@@ -271,7 +271,7 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 	// Title Text at the top
 	char text[1024]={0};
 	cgi_SP_GetStringTextString( "SP_INGAME_OBJECTIVES", text, sizeof(text) );
-	cgi_R_Font_DrawString (titleXPos, titleYPos, text, colorTable[CT_TITLE], cgs.media.qhFontMedium, -1, 1.0f);
+	cgi_R_Font_DrawString (titleXPos, titleYPos, text, colorTable[CT_TITLE], cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef);
 
 	int missionYcnt = 0;
 
@@ -286,10 +286,10 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 
 			//	Draw graphics that show if mission has been accomplished or not
 			cgi_R_SetColor(colorTable[CT_BLUE3]);
-			CG_DrawPic( (graphicXpos),   (totalY-graphicYOffset),   graphic_size,  graphic_size, cgs.media.messageObjCircle);	// Circle in front
+			CG_DrawPic( (graphicXpos) + (graphic_size - (graphic_size * cgs.widthRatioCoef)), (totalY - graphicYOffset), graphic_size * cgs.widthRatioCoef, graphic_size, cgs.media.messageObjCircle);	// Circle in front
 			if (cent->gent->client->sess.mission_objectives[i].status == OBJECTIVE_STAT_SUCCEEDED)
 			{
-				CG_DrawPic( (graphicXpos),   (totalY-graphicYOffset),   graphic_size,  graphic_size, cgs.media.messageLitOn);	// Center Dot
+				CG_DrawPic( (graphicXpos) + (graphic_size - (graphic_size * cgs.widthRatioCoef)),   (totalY-graphicYOffset),   graphic_size * cgs.widthRatioCoef,  graphic_size, cgs.media.messageLitOn);	// Center Dot
 			}
 
 			// Print current objective text
@@ -304,7 +304,7 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 		int messageYPosition = objectiveStartingYpos + (objectiveTextBoxHeight / 4);
 
 		cgi_SP_GetStringTextString( "SP_INGAME_OBJNONE", text, sizeof(text) );
-		int messageXPosition = objectiveStartingXpos + (objectiveTextBoxWidth/2) -  (cgi_R_Font_StrLenPixels(text, cgs.media.qhFontMedium, 1.0f) /2);
+		int messageXPosition = objectiveStartingXpos + (objectiveTextBoxWidth/2) -  (cgi_R_Font_StrLenPixels(text, cgs.media.qhFontMedium, 1.0f, cgs.widthRatioCoef) /2);
 
 		cgi_R_Font_DrawString (
 			messageXPosition,
@@ -313,7 +313,7 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 			colorTable[CT_WHITE],
 			cgs.media.qhFontMedium,
 			-1,
-			1.0f);
+			1.0f, cgs.widthRatioCoef);
 	}
 }
 
@@ -418,18 +418,20 @@ static void CG_LoadBar(void)
 	const int barheight = tickheight + tickpady*2, bartop = 475-barheight;
 	const int capleft = barleft+tickpadx, tickleft = capleft+capwidth, ticktop = bartop+tickpady;
 
+	float xOffset = ((SCREEN_WIDTH - (SCREEN_WIDTH * cgs.widthRatioCoef)) / 2);
+
 	cgi_R_SetColor( colorTable[CT_WHITE]);
 	// Draw background
-	CG_DrawPic(barleft, bartop, barwidth, barheight, cgs.media.levelLoad);
+	CG_DrawPic(barleft * cgs.widthRatioCoef + xOffset, bartop, barwidth * cgs.widthRatioCoef, barheight, cgs.media.levelLoad);
 
 	// Draw left cap (backwards)
-	CG_DrawPic(tickleft, ticktop, -capwidth, tickheight, cgs.media.loadTickCap);
+	CG_DrawPic(tickleft * cgs.widthRatioCoef + xOffset, ticktop, -capwidth * cgs.widthRatioCoef, tickheight, cgs.media.loadTickCap);
 
 	// Draw bar
-	CG_DrawPic(tickleft, ticktop, tickwidth*cg.loadLCARSStage, tickheight, cgs.media.loadTick);
+	CG_DrawPic(tickleft * cgs.widthRatioCoef + xOffset, ticktop, tickwidth*cg.loadLCARSStage * cgs.widthRatioCoef, tickheight, cgs.media.loadTick);
 
 	// Draw right cap
-	CG_DrawPic(tickleft+tickwidth*cg.loadLCARSStage, ticktop, capwidth, tickheight, cgs.media.loadTickCap);
+	CG_DrawPic((tickleft+tickwidth*cg.loadLCARSStage) * cgs.widthRatioCoef + xOffset, ticktop, capwidth * cgs.widthRatioCoef, tickheight, cgs.media.loadTickCap);
 }
 
 int CG_WeaponCheck( int weaponIndex );
@@ -469,7 +471,8 @@ static int CG_DrawLoadWeaponsPrintRow( const char *itemName, int weaponsBits,int
 	pad = 12;
 
 	// calculate placement of weapon icons
-	holdX = x + (width - ((iconSize*rowIconCnt) + (pad * (rowIconCnt-1))))/2;
+	holdX = (x * cgs.widthRatioCoef + 0.5f * (SCREEN_WIDTH - SCREEN_WIDTH * cgs.widthRatioCoef)) + ((width * cgs.widthRatioCoef - ((iconSize * rowIconCnt + pad * (rowIconCnt - 1)) * cgs.widthRatioCoef)) * 0.5f);
+
 
 	for (i=startIndex;i<MAXLOADWEAPONS;i++)
 	{
@@ -492,7 +495,7 @@ static int CG_DrawLoadWeaponsPrintRow( const char *itemName, int weaponsBits,int
 	//		}
 	//		else
 			{
-				CG_DrawPic( holdX, y+yOffset, iconSize, iconSize, weaponInfo->weaponIcon );
+				CG_DrawPic( holdX, y+yOffset, iconSize * cgs.widthRatioCoef, iconSize, weaponInfo->weaponIcon );
 			}
 
 			printedIconCnt++;
@@ -501,7 +504,7 @@ static int CG_DrawLoadWeaponsPrintRow( const char *itemName, int weaponsBits,int
 				break;
 			}
 
-			holdX += (iconSize+pad);
+			holdX += (iconSize+pad) * cgs.widthRatioCoef;
 		}
 	}
 
@@ -575,7 +578,8 @@ static int CG_DrawLoadForcePrintRow( const char *itemName, int forceBits,int row
 	cgi_R_SetColor( color );
 
 	// calculate placement of weapon icons
-	holdX = x + (width - ((MAXLOAD_FORCEICONSIZE*rowIconCnt) + (MAXLOAD_FORCEICONPAD * (rowIconCnt-1))))/2;
+	holdX = (x * cgs.widthRatioCoef + 0.5f * (SCREEN_WIDTH - SCREEN_WIDTH * cgs.widthRatioCoef)) + (((width * cgs.widthRatioCoef) - (((MAXLOAD_FORCEICONSIZE * rowIconCnt) + (MAXLOAD_FORCEICONPAD * (rowIconCnt - 1))) * cgs.widthRatioCoef)) * 0.5f);
+
 
 	for (i=startIndex;i<MAX_SHOWPOWERS;i++)
 	{
@@ -588,7 +592,7 @@ static int CG_DrawLoadForcePrintRow( const char *itemName, int forceBits,int row
 		{
 			endIndex = i;
 
-			CG_DrawPic( holdX, y+yOffset, MAXLOAD_FORCEICONSIZE, MAXLOAD_FORCEICONSIZE, force_icons[showPowers[i]] );
+			CG_DrawPic( holdX, y+yOffset, MAXLOAD_FORCEICONSIZE * cgs.widthRatioCoef, MAXLOAD_FORCEICONSIZE, force_icons[showPowers[i]] );
 
 			printedIconCnt++;
 			if (printedIconCnt==MAXLOADICONSPERROW)
@@ -596,7 +600,7 @@ static int CG_DrawLoadForcePrintRow( const char *itemName, int forceBits,int row
 				break;
 			}
 
-			holdX += (MAXLOAD_FORCEICONSIZE+MAXLOAD_FORCEICONPAD);
+			holdX += (MAXLOAD_FORCEICONSIZE+MAXLOAD_FORCEICONPAD) * cgs.widthRatioCoef;
 		}
 	}
 
@@ -830,8 +834,8 @@ void CG_DrawInformation( void ) {
 
 		cgi_SP_GetStringTextString( "SP_INGAME_ALONGTIME", text, sizeof(text) );
 
-		int w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontMedium, 1.0f);
-		cgi_R_Font_DrawString((320)-(w/2), 140, text,  colorTable[CT_ICON_BLUE], cgs.media.qhFontMedium, -1, 1.0f);
+		int w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontMedium, 1.0f, cgs.widthRatioCoef);
+		cgi_R_Font_DrawString((320)-(w/2), 140, text,  colorTable[CT_ICON_BLUE], cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef);
 	}
 	else
 	{
@@ -867,11 +871,11 @@ void CG_DrawInformation( void ) {
 		{
 			char text[1024]={0};
 			cgi_SP_GetStringTextString( s+1, text, sizeof(text) );
-			cgi_R_Font_DrawString( 15, y, va("\"%s\"",text),colorTable[CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f );
+			cgi_R_Font_DrawString( 15, y, va("\"%s\"",text),colorTable[CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef );
 		}
 		else
 		{
-			cgi_R_Font_DrawString( 15, y, va("\"%s\"",s),colorTable[CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f );
+			cgi_R_Font_DrawString( 15, y, va("\"%s\"",s),colorTable[CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f, cgs.widthRatioCoef );
 		}
 		y += 20;
 	}
