@@ -1164,68 +1164,6 @@ static void CG_PlayerAnimEventDo( centity_t *cent, animevent_t *animEvent )
 	}
 }
 
-
-typedef struct {
-	const char* alias;
-	const char* canonical;
-} modelAlias_t;
-
-static const modelAlias_t modelAliases[] = {
-	// Stormtrooper family
-	{ "stormtrooper2",    "stormtrooper" },
-	{ "stofficer",        "stormtrooper" },
-	{ "stcommander",      "stormtrooper" },
-	{ "stofficeralt",     "stormtrooper" },
-	{ "rockettrooper",    "stormtrooper" },
-
-	// Cultists
-	{ "cultist_saber",          "cultist" },
-	{ "cultist_saber_throw",    "cultist" },
-	{ "cultist_saber_med",      "cultist" },
-	{ "cultist_saber_med_throw","cultist" },
-	{ "cultist_saber_strong",   "cultist" },
-	{ "cultist_saber_strong_throw","cultist" },
-	{ "cultist_saber_all",      "cultist" },
-	{ "cultist_saber_all_throw","cultist" },
-
-	{ "cultist_saber2",         "cultist" },
-	{ "cultist_saber_throw2",   "cultist" },
-	{ "cultist_saber_med2",     "cultist" },
-	{ "cultist_saber_med_throw2","cultist" },
-	{ "cultist_saber_strong2",  "cultist" },
-	{ "cultist_saber_strong_throw2","cultist" },
-	{ "cultist_saber_all2",     "cultist" },
-	{ "cultist_saber_all_throw2","cultist" },
-
-	// Reborn_New
-	{ "reborn_new2",		"reborn_new" },
-	{ "reborn_dual",		"reborn_new" },
-	{ "reborn_dual2",		"reborn_new" },
-	{ "reborn_staff",		"reborn_new" },
-	{ "reborn_staff2",		"reborn_new" },
-	{ "reborn_dual",		"reborn_new" },
-
-	// Misc one-offs
-	{ "protocol_imp",           "protocol" },
-	{ "saber_droid_training",   "saber_droid" },
-
-	{ NULL, NULL }
-};
-
-static hstring CanonicalizeModel(hstring model)
-{
-	if (!model.handle()) return model;
-
-	for (int i = 0; modelAliases[i].alias; i++)
-	{
-		if (model == modelAliases[i].alias)
-		{
-			return (hstring)modelAliases[i].canonical;
-		}
-	}
-	return model;
-}
-
 static void CG_PlayerAnimEvents( int animFileIndex, qboolean torso, int oldFrame, int frame, int entNum )
 {
 	int		i;
@@ -1283,7 +1221,6 @@ static void CG_PlayerAnimEvents( int animFileIndex, qboolean torso, int oldFrame
 	}
 
 	hstring myModel = g_entities[entNum].NPC_type;		//apparently NPC_type is always the same as the model name???
-	myModel = CanonicalizeModel(myModel);
 
 	// Check for anim event
 	for ( i=0; i < MAX_ANIM_EVENTS; ++i )
